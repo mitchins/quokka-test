@@ -219,11 +219,15 @@ On failure, diagnostics can attach the action, locator, timeout, screenshot, and
 
 ### 1) Package smoke checks
 
+`QuokkaTestTests` is intentionally a package smoke suite. It verifies importability, public API access, and pure Swift contracts up front. It is not the primary behavioral validation layer for XCUITest mechanics.
+
 ```bash
 swift test -Xswiftc -warnings-as-errors
 ```
 
 ### 2) XcodeGen + Xcode validation
+
+`QuokkaTestUITests` and `QuokkaTestMacUITests` are the primary behavioral suites. They exercise locators, waits, counts, scrolling, visibility, page readiness, diagnostics, and coverage against live UI.
 
 ```bash
 xcodegen generate

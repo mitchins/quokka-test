@@ -1,6 +1,14 @@
 import XCTest
 @testable import QuokkaTest
 
+// Package smoke tests only:
+// - importability
+// - public API access
+// - pure Swift/value semantics
+//
+// Behavioral validation for XCUITest mechanics lives in the iOS/macOS UI test targets,
+// where the framework runs against a real accessibility hierarchy.
+
 private enum CardEditorLocator: String, UITestIdentifiable {
     case aliases = "cardEditor.aliases"
     case save = "cardEditor.save"
@@ -124,7 +132,7 @@ final class QuokkaTestUsageSandboxTests: XCTestCase {
     }
 
     @MainActor
-    func testSurfaceScopedMatchQuerySupportsCountAssertions() {
+    func testSurfaceScopedMatchQueryAPIIsAvailable() {
         XCTAssertEqual(String(describing: UITestMatchQuery.self), "UITestMatchQuery")
 
         let fluentCountAssertion:
