@@ -4,6 +4,8 @@ import QuokkaTestMac
 private enum MacCardEditorLocator: String, UITestIdentifiable {
     case aliases = "cardEditor.aliases"
     case save = "cardEditor.save"
+    case savedValue = "cardEditor.savedValue"
+    case detailPanel = "cardEditor.detailPanel"
 }
 
 private enum MacRootLocator: String, UITestIdentifiable {
@@ -30,9 +32,10 @@ final class QuokkaTestMacUsageSandboxUITests: XCTestCase {
         app.button(MacRootLocator.addCard).tapWhenReady()
         app.field(MacCardEditorLocator.aliases).clearAndEnter("Mac Alias")
         app.button(MacCardEditorLocator.save).tapWhenReady()
-        app.staticText(UITestLocator.id("cardEditor.savedValue"))
+        app.staticText(MacCardEditorLocator.savedValue)
             .assertExists(timeout: app.timeouts.long)
             .assertValueEquals("Saved: Mac Alias")
+            .assertVisible(in: app.element(MacCardEditorLocator.detailPanel))
     }
 
     @MainActor

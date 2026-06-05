@@ -135,6 +135,44 @@ app.alert(UITestLocator.label("Error")).assertNotExists()
 app.staticText(UITestLocator.label("Based on nearby match")).assertNotExists(timeout: app.timeouts.short)
 ```
 
+### Synchronization helpers
+
+```swift
+app.element(.id("loading-spinner"))
+    .waitUntilExists(timeout: 5)
+
+app.button(.id("saved-connection-connect"))
+    .waitUntilNotExists(timeout: 2)
+
+XCTAssertTrue(
+    UITestSync.untilAllNotExist(
+        [
+            app.button(.id("saved-connection-connect")),
+            app.button(.id("saved-connection-update")),
+        ],
+        timeout: 2
+    )
+)
+```
+
+### Surface-scoped counts
+
+```swift
+app.buttons(
+    UITestLocatorChain(
+        .id("shell-sidebar-toggle"),
+        .label("Sidebar")
+    )
+).assertCount(1)
+```
+
+### Container-relative visibility
+
+```swift
+app.element(.id("saved-connection-inline-error"))
+    .assertVisible(in: app.element(.id("saved-connection-detail-panel")))
+```
+
 ### Scroll helper
 
 ```swift
@@ -181,11 +219,15 @@ On failure, diagnostics can attach the action, locator, timeout, screenshot, and
 
 ### 1) Package smoke checks
 
+`QuokkaTestTests` is intentionally a package smoke suite. It verifies importability, public API access, and pure Swift contracts up front. It is not the primary behavioral validation layer for XCUITest mechanics.
+
 ```bash
 swift test -Xswiftc -warnings-as-errors
 ```
 
 ### 2) XcodeGen + Xcode validation
+
+`QuokkaTestUITests` and `QuokkaTestMacUITests` are the primary behavioral suites. They exercise locators, waits, counts, scrolling, visibility, page readiness, diagnostics, and coverage against live UI.
 
 ```bash
 xcodegen generate

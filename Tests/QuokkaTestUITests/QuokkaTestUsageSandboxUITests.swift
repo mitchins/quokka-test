@@ -6,6 +6,7 @@ private enum CardEditorLocator: String, UITestIdentifiable {
     case save = "cardEditor.save"
     case savedValue = "cardEditor.savedValue"
     case merchantSearch = "cardEditor.merchantSearch"
+    case detailPanel = "cardEditor.detailPanel"
 }
 
 private enum RootLocator: String, UITestIdentifiable {
@@ -16,6 +17,16 @@ private enum SettingsLocator: String, UITestIdentifiable {
     case debugPOICapture = "settings.debugPOICapture"
     case scroll = "settings.scroll"
 }
+
+private let merchantSearchLocator = UITestLocatorChain(
+    .id(CardEditorLocator.merchantSearch.rawValue),
+    .placeholder("Search cards")
+)
+
+private let aliasesFieldLocator = UITestLocatorChain(
+    .id(CardEditorLocator.aliases.rawValue),
+    .placeholder("Card aliases")
+)
 
 final class QuokkaTestUsageSandboxUITests: XCTestCase {
     @MainActor
@@ -35,16 +46,20 @@ final class QuokkaTestUsageSandboxUITests: XCTestCase {
         app.launch(using: config)
         app.page(.navigationTitle("Cards")).waitUntilReady()
         app.staticText(UITestLocator.id("cards.pageTitle")).assertExists()
+        app.buttons(UITestLocatorChain(.id(RootLocator.addCard.rawValue))).assertCount(1)
+        app.buttons(UITestLocatorChain(.id("missing-button"))).assertCount(0, timeout: 0)
+        app.buttons(UITestLocatorChain(.id(RootLocator.addCard.rawValue), .label("Save")))
+            .assertCount(2)
         app.button(RootLocator.addCard)
             .assertEnabled()
             .assertLabelEquals("Add card")
 
         app.button(RootLocator.addCard)
             .tapWhenReady()
-        app.searchField(CardEditorLocator.merchantSearch)
+        app.searchField(merchantSearchLocator)
             .assertExists()
             .clearAndEnter("Coles")
-        app.field(CardEditorLocator.aliases)
+        app.field(aliasesFieldLocator)
             .clearAndEnter(alias)
         app.button(CardEditorLocator.save)
             .tapWhenReady()
@@ -54,6 +69,7 @@ final class QuokkaTestUsageSandboxUITests: XCTestCase {
             .assertExists()
             .assertLabelContains("Keyboard Alias")
             .assertMatchCount(1)
+            .assertVisible(in: app.element(CardEditorLocator.detailPanel))
 
         let savedAliasLabel = "Saved: \(alias)"
         app.staticText(UITestLocator.label(savedAliasLabel)).assertMatchCount(1)
@@ -89,14 +105,14 @@ final class QuokkaTestUsageSandboxUITests: XCTestCase {
             .requiring(.notExists(.id("phase2.negativeTarget")))
             .waitUntilReady()
         app.page(.heading("No cards yet"))
-            .requiring(.valueEquals(.id("cardEditor.aliases"), ""))
+            .requiring(.valueEquals(.placeholder("Card aliases"), ""))
             .waitUntilReady()
 
         app.staticText(UITestLocator.id("cards.pageTitle"))
             .assertExists()
         app.page(.navigationTitle("Cards"))
             .waitUntilReady(timeout: app.timeouts.short)
-        app.searchField(UITestLocator.id("cardEditor.merchantSearch"))
+        app.searchField(merchantSearchLocator)
             .assertExists(timeout: app.timeouts.short)
         app.searchField(UITestLocator.placeholder("Search cards"))
             .assertExists(timeout: app.timeouts.short)
