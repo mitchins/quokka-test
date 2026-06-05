@@ -7,10 +7,10 @@ public struct UITestTimeouts: Sendable {
     public static let defaultNormal: TimeInterval = 10
     public static let defaultLong: TimeInterval = 20
 
-    public var tiny: TimeInterval = Self.defaultTiny
-    public var short: TimeInterval = Self.defaultShort
-    public var normal: TimeInterval = Self.defaultNormal
-    public var long: TimeInterval = Self.defaultLong
+    public let tiny: TimeInterval
+    public let short: TimeInterval
+    public let normal: TimeInterval
+    public let long: TimeInterval
 
     public init(
         tiny: TimeInterval = Self.defaultTiny,

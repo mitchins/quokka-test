@@ -1,3 +1,4 @@
+import Foundation
 import XCTest
 
 @MainActor
@@ -35,6 +36,16 @@ enum UITestAction {
             file: file,
             line: line
         )
+        let waitTimeout = timeout ?? timeouts.normal
+        let deadline = Date().addingTimeInterval(waitTimeout)
+
+        while Date() < deadline {
+            if element.isHittable {
+                return
+            }
+            Thread.sleep(forTimeInterval: 0.05)
+        }
+
         XCTAssertTrue(
             element.isHittable,
             "Expected element to be hittable: \(identifier)",

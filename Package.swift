@@ -15,14 +15,12 @@ let package = Package(
     targets: [
         .target(
             name: "QuokkaTest",
-            path: "Sources/QuokkaTest",
-            swiftSettings: [.unsafeFlags(["-warnings-as-errors"])]
+            path: "Sources/QuokkaTest"
         ),
         .testTarget(
             name: "QuokkaTestTests",
             dependencies: ["QuokkaTest"],
-            path: "Tests/QuokkaTestTests",
-            swiftSettings: [.unsafeFlags(["-warnings-as-errors"])]
+            path: "Tests/QuokkaTestTests"
         )
     ]
 )

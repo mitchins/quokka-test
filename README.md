@@ -82,7 +82,7 @@ struct CardEditorRobot {
 Use this for package build + unit checks:
 
 ```bash
-swift test --enable-code-coverage -Xswiftc -warnings-as-errors
+swift test -Xswiftc -warnings-as-errors
 ```
 
 This validates package compilation and the shared-code examples.
@@ -105,7 +105,7 @@ xcodebuild \
   -project QuokkaTest.xcodeproj \
   -scheme QuokkaDemoTest \
   -sdk iphonesimulator \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' \
+  -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
   -derivedDataPath ./.build/xcodebuild \
   -resultBundlePath ./.build/QuokkaTest.xcresult \
   test \
@@ -132,8 +132,8 @@ xcrun xcresulttool get --legacy object --path ./.build/QuokkaTest.xcresult --for
 
 The repository keeps:
 
-- [project.yml](/Users/mitchellcurrie/Projects/quokka-test/project.yml)
-- [Tests/QuokkaTestDemoApp](/Users/mitchellcurrie/Projects/quokka-test/Tests/QuokkaTestDemoApp)
-- [Tests/QuokkaTestUITests/QuokkaTestUsageSandboxUITests.swift](/Users/mitchellcurrie/Projects/quokka-test/Tests/QuokkaTestUITests/QuokkaTestUsageSandboxUITests.swift)
+- [project.yml](project.yml)
+- [Tests/QuokkaTestDemoApp](Tests/QuokkaTestDemoApp)
+- [Tests/QuokkaTestUITests/QuokkaTestUsageSandboxUITests.swift](Tests/QuokkaTestUITests/QuokkaTestUsageSandboxUITests.swift)
 
 CI should consume coverage artifacts from Xcode test output (`.xcresult`) and convert to Sonar-compatible format in your Sonar pipeline.

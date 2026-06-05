@@ -109,7 +109,7 @@ def _iter_line_ints(value: Any) -> Iterable[int]:
     if isinstance(value, str):
         parts = [part.strip() for part in value.split(",") if part.strip()]
         return filter(None, (_to_int(part) for part in parts))
-    if isinstance(value, list):
+    elif isinstance(value, list):
         for item in value:
             if isinstance(item, dict):
                 line = _to_int(item.get("lineNumber")) or _to_int(item.get("line")) or _to_int(item.get("line_number"))
@@ -330,14 +330,14 @@ def _to_cobertura_xml(result_path: Path, output_path: Path, repository_root: Pat
                     },
                 )
 
-            src = ET.SubElement(class_node, "methods")
+            methods_node = ET.SubElement(class_node, "methods")
             ET.SubElement(
-                src,
+                methods_node,
                 "method",
                 {
                     "name": file_name,
                     "signature": "",
-                    "line-rate": "1",
+                    "line-rate": f"{file_line_rate:.6f}",
                     "branch-rate": "0",
                 },
             )
