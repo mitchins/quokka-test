@@ -33,11 +33,12 @@ jobs:
       - name: Run Xcode Unit Coverage
         run: |
           set -euo pipefail
+          DESTINATION="platform=iOS Simulator,name=Any iOS Simulator Device"
           mkdir -p ./.build/coverage/raw ./.build/derivedData
           xcodebuild \
             -project QuokkaTest.xcodeproj \
             -scheme QuokkaTest \
-            -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest" \
+            -destination "${DESTINATION}" \
             -derivedDataPath ./.build/derivedData \
             -resultBundlePath ./.build/coverage/raw/QuokkaTest.unit.xcresult \
             -enableCodeCoverage YES \
@@ -50,10 +51,11 @@ jobs:
       - name: Run Xcode UI Coverage
         run: |
           set -euo pipefail
+          DESTINATION="platform=iOS Simulator,name=Any iOS Simulator Device"
           xcodebuild \
             -project QuokkaTest.xcodeproj \
             -scheme QuokkaDemoTest \
-            -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest" \
+            -destination "${DESTINATION}" \
             -derivedDataPath ./.build/derivedData \
             -resultBundlePath ./.build/coverage/raw/QuokkaTest.ui.xcresult \
             -enableCodeCoverage YES \
