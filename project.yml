@@ -2,7 +2,7 @@ name: QuokkaTest
 options:
   bundleIdPrefix: com.mitchins
   deploymentTarget:
-    iOS: "13.0"
+    iOS: "15.0"
   generateEmptyDirectories: true
 
 packages: {}
