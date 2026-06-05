@@ -27,10 +27,10 @@ jobs:
         run: |
           xcodegen generate
 
-      - name: Run SwiftPM smoke checks
+      - name: Validate Swift Package
         run: swift test -Xswiftc -warnings-as-errors
 
-      - name: Run Xcode unit tests with coverage
+      - name: Run Xcode Unit Coverage
         run: |
           set -euo pipefail
           mkdir -p ./.build/coverage/raw ./.build/derivedData
@@ -47,7 +47,7 @@ jobs:
             GCC_TREAT_WARNINGS_AS_ERRORS=YES \
             OTHER_SWIFT_FLAGS='-warnings-as-errors'
 
-      - name: Run Xcode UI tests with coverage
+      - name: Run Xcode UI Coverage
         run: |
           set -euo pipefail
           xcodebuild \
@@ -63,7 +63,7 @@ jobs:
             GCC_TREAT_WARNINGS_AS_ERRORS=YES \
             OTHER_SWIFT_FLAGS='-warnings-as-errors'
 
-      - name: Verify coverage bundle outputs
+      - name: Verify Coverage Bundle Outputs
         if: always()
         run: |
           set -euo pipefail
@@ -80,7 +80,7 @@ jobs:
 
           ls -la ./.build/coverage/raw
 
-      - name: Convert coverage to Sonar Cobertura XML
+      - name: Convert Coverage to Cobertura XML
         if: success()
         run: |
           set -euo pipefail
@@ -92,7 +92,7 @@ jobs:
             ./.build/coverage/raw/QuokkaTest.ui.xcresult \
             ./coverage/ui-coverage.xml
 
-      - name: Upload coverage artifacts
+      - name: Upload Coverage Artifacts
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:

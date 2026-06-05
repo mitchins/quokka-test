@@ -20,8 +20,7 @@ final class QuokkaTestUsageSandboxTests: XCTestCase {
     }
 
     func testTimeoutPolicyCanBeOverridden() {
-        var custom = UITestTimeouts()
-        custom.normal = 5
+        let custom = UITestTimeouts(normal: 5)
         XCTAssertEqual(custom.normal, 5)
     }
 
