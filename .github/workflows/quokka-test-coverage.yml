@@ -55,6 +55,16 @@ jobs:
               }'
           }
 
+          resolve_simctl_iPhone_simulator_id() {
+            printf "%s\n" "$1" |
+              awk '/iPhone.*Pro/ { match($0, /[0-9A-Fa-f-]{36}/, id); if (id[0] != "") { print id[0]; exit } }'
+          }
+
+          resolve_simctl_simulator_id() {
+            printf "%s\n" "$1" |
+              awk '/^[[:space:]]*iPhone/ || /^[[:space:]]*iPad/ { match($0, /[0-9A-Fa-f-]{36}/, id); if (id[0] != "") { print id[0]; exit } }'
+          }
+
           AVAILABLE_DESTINATIONS="$(xcodebuild -project QuokkaTest.xcodeproj -scheme QuokkaTest -showdestinations 2>&1)"
 
           SIMULATOR_ID="$(resolve_iPhone_simulator_id "$AVAILABLE_DESTINATIONS")"
@@ -63,40 +73,22 @@ jobs:
           fi
 
           if [ -z "$SIMULATOR_ID" ]; then
-            echo "No concrete iOS simulator destination was found yet; attempting bootstrap."
+            echo "No concrete iOS simulator destination from xcodebuild scheme. Falling back to existing simctl devices."
 
-            xcodebuild -downloadPlatform iOS
-            AVAILABLE_DESTINATIONS="$(xcodebuild -project QuokkaTest.xcodeproj -scheme QuokkaTest -showdestinations 2>&1)"
-            SIMULATOR_ID="$(resolve_iPhone_simulator_id "$AVAILABLE_DESTINATIONS")"
+            SIMCTL_DEVICES="$(xcrun simctl list devices available)"
+
+            SIMULATOR_ID="$(resolve_simctl_iPhone_simulator_id "$SIMCTL_DEVICES")"
             if [ -z "$SIMULATOR_ID" ]; then
-              SIMULATOR_ID="$(resolve_simulator_id "$AVAILABLE_DESTINATIONS")"
+              SIMULATOR_ID="$(resolve_simctl_simulator_id "$SIMCTL_DEVICES")"
             fi
 
             if [ -z "$SIMULATOR_ID" ]; then
-              RUNTIME_ID="$(xcrun simctl list runtimes | awk -F'[()]' '/^iOS/ {print $2; exit}')"
-              if [ -z "$RUNTIME_ID" ]; then
-                echo "Failed to resolve an iOS simulator runtime ID."
-                echo "$AVAILABLE_DESTINATIONS"
-                exit 1
-              fi
-
-              DEVICE_TYPE_ID="$(xcrun simctl list devicetypes | awk -F'[()]' '/iPhone .*Pro/ {print $2; exit}')"
-              if [ -z "$DEVICE_TYPE_ID" ]; then
-                DEVICE_TYPE_ID="$(xcrun simctl list devicetypes | awk -F'[()]' '/iPhone/ {print $2; exit}')"
-              fi
-
-              if [ -z "$DEVICE_TYPE_ID" ]; then
-                echo "Failed to resolve an iPhone simulator device type ID."
-                exit 1
-              fi
-
-              SIMULATOR_NAME="QuokkaTestCI iPhone"
-              SIMULATOR_ID="$(xcrun simctl create "$SIMULATOR_NAME" "$DEVICE_TYPE_ID" "$RUNTIME_ID")"
-
-              if [ -z "$SIMULATOR_ID" ]; then
-                echo "Failed to create or resolve an iOS simulator."
-                exit 1
-              fi
+              echo "No installed iOS simulators are currently available."
+              echo "xcodebuild destinations:"
+              echo "$AVAILABLE_DESTINATIONS"
+              echo "simctl devices:"
+              echo "$SIMCTL_DEVICES"
+              exit 1
             fi
           fi
 
