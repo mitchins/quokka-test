@@ -73,3 +73,64 @@ enum UITestAction {
         element.tap()
     }
 }
+
+@MainActor
+internal protocol _UITestActionSurface {
+    var raw: XCUIElement { get }
+    var identifier: String { get }
+    var timeouts: UITestTimeouts { get }
+}
+
+@MainActor
+public extension _UITestActionSurface {
+    @discardableResult
+    func assertExists(
+        timeout: TimeInterval? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> Self {
+        UITestAction.assertExists(
+            raw,
+            identifier: identifier,
+            timeouts: timeouts,
+            timeout: timeout,
+            file: file,
+            line: line
+        )
+        return self
+    }
+
+    @discardableResult
+    func assertHittable(
+        timeout: TimeInterval? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> Self {
+        UITestAction.assertHittable(
+            raw,
+            identifier: identifier,
+            timeouts: timeouts,
+            timeout: timeout,
+            file: file,
+            line: line
+        )
+        return self
+    }
+
+    @discardableResult
+    func tapWhenReady(
+        timeout: TimeInterval? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> Self {
+        UITestAction.tapWhenReady(
+            raw,
+            identifier: identifier,
+            timeouts: timeouts,
+            timeout: timeout,
+            file: file,
+            line: line
+        )
+        return self
+    }
+}
