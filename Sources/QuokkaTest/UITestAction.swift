@@ -75,7 +75,7 @@ enum UITestAction {
 }
 
 @MainActor
-internal protocol _UITestActionSurface {
+public protocol _UITestActionSurface {
     var raw: XCUIElement { get }
     var identifier: String { get }
     var timeouts: UITestTimeouts { get }
