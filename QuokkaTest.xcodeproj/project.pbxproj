@@ -21,6 +21,7 @@
 		B2A2D065977AD91B80BDBF70 /* UITestIdentifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66607DC9D18C9B4D3603B45 /* UITestIdentifiable.swift */; };
 		B7044A21C5120F97ABF264DC /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACC854E5ED5F38B074D7D56 /* ContentView.swift */; };
 		BE8B367438F4FF7DBBD62D71 /* UITestAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBF66AAF1689912551F56DAA /* UITestAction.swift */; };
+		C14407FD0FF4056B281D1221 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B0805E4F64C801AABCA55D3A /* LaunchScreen.storyboard */; };
 		D03326447F7E8080A178C99A /* QuokkaTestUsageSandboxUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E7F8B186823091DED057A18 /* QuokkaTestUsageSandboxUITests.swift */; };
 		DAF5AF63852A9E78BDFC5587 /* UITestTimeouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C6C3B9BC9A5C8DC4C8BF5D /* UITestTimeouts.swift */; };
 		E86EB9ABB120B8BC83B5E667 /* UITestButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1558B0821A66F581AFD9C211 /* UITestButton.swift */; };
@@ -86,6 +87,7 @@
 		5A508F6C927C6B2F3CEC33A4 /* UITestField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestField.swift; sourceTree = "<group>"; };
 		7004C910C41EF004E60FB396 /* QuokkaTestTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = QuokkaTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FC7C7ADAE67E547A3B3AB19 /* XCUIElement+ClearText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCUIElement+ClearText.swift"; sourceTree = "<group>"; };
+		B0805E4F64C801AABCA55D3A /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B09A101BE7FF307995AEA53B /* UITestElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestElement.swift; sourceTree = "<group>"; };
 		B6016A211159CF6E715DB9DF /* UITestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestApp.swift; sourceTree = "<group>"; };
 		B71A5960531246EC357424D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -149,6 +151,7 @@
 				55A106C6898F41C7F90E7DF6 /* App.swift */,
 				BACC854E5ED5F38B074D7D56 /* ContentView.swift */,
 				B71A5960531246EC357424D7 /* Info.plist */,
+				B0805E4F64C801AABCA55D3A /* LaunchScreen.storyboard */,
 			);
 			name = QuokkaTestDemoApp;
 			path = Tests/QuokkaTestDemoApp;
@@ -270,6 +273,7 @@
 			buildConfigurationList = 353ED5A0E3A26EA0585BF388 /* Build configuration list for PBXNativeTarget "QuokkaTestDemoApp" */;
 			buildPhases = (
 				47CC14FB0C25A4F96531597F /* Sources */,
+				A525C31B5FEE611F296D4292 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -317,6 +321,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A525C31B5FEE611F296D4292 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C14407FD0FF4056B281D1221 /* LaunchScreen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2833B51EEF3EF6E55A103813 /* Sources */ = {

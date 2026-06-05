@@ -2,7 +2,7 @@ import XCTest
 
 @MainActor
 /// A wrapped button with shared QuokkaTest actions and assertions.
-public struct UITestButton: _UITestActionSurface {
+public struct UITestButton: UITestActionSurface {
     public let raw: XCUIElement
     public let identifier: String
     public let timeouts: UITestTimeouts

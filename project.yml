@@ -38,8 +38,13 @@ targets:
     type: application
     platform: iOS
     sources: [Tests/QuokkaTestDemoApp]
+    resources:
+      - path: Tests/QuokkaTestDemoApp/LaunchScreen.storyboard
     info:
       path: Tests/QuokkaTestDemoApp/Info.plist
+      properties:
+        UILaunchStoryboardName: LaunchScreen
+        UIRequiresFullScreen: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mitchins.QuokkaTestDemoApp

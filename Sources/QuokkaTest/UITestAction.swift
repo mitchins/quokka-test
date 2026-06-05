@@ -75,14 +75,14 @@ enum UITestAction {
 }
 
 @MainActor
-public protocol _UITestActionSurface {
+public protocol UITestActionSurface {
     var raw: XCUIElement { get }
     var identifier: String { get }
     var timeouts: UITestTimeouts { get }
 }
 
 @MainActor
-extension _UITestActionSurface {
+extension UITestActionSurface {
     @discardableResult
     public func assertExists(
         timeout: TimeInterval? = nil,

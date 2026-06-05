@@ -2,7 +2,7 @@ import XCTest
 
 @MainActor
 /// A generic wrapped UI element with shared QuokkaTest actions and assertions.
-public struct UITestElement: _UITestActionSurface {
+public struct UITestElement: UITestActionSurface {
     public let raw: XCUIElement
     public let identifier: String
     public let timeouts: UITestTimeouts

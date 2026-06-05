@@ -2,7 +2,7 @@ import XCTest
 
 @MainActor
 /// A wrapped text field with shared QuokkaTest actions plus text-entry helpers.
-public struct UITestField: _UITestActionSurface {
+public struct UITestField: UITestActionSurface {
     public let raw: XCUIElement
     public let identifier: String
     public let timeouts: UITestTimeouts

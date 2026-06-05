@@ -38,4 +38,29 @@ final class QuokkaTestUsageSandboxUITests: XCTestCase {
         XCTAssertTrue(savedLabel.waitForExistence(timeout: app.timeouts.normal))
         XCTAssertEqual(savedLabel.label, "Saved: Legacy Alias")
     }
+
+    @MainActor
+    func testUsageSandbox_coversWrapperSurfaceAndFallbackBranches() throws {
+        let app = UITestApp()
+        app.launch()
+
+        app.field(CardEditorLocator.aliases)
+            .assertExists()
+            .assertHittable()
+            .enterText("!")
+            .clearAndEnter("Coverage Alias")
+
+        app.button(CardEditorLocator.save)
+            .assertExists(timeout: app.timeouts.tiny)
+            .tapWhenReady()
+
+        let _ = app.field(.value("Coverage Alias"))
+        let _ = app.button(.value("Save"))
+        let _ = app.button(.placeholder("Save"))
+        let _ = app.secureField(.placeholder("Card aliases"))
+
+        let savedLabel = app.raw.staticTexts[CardEditorLocator.savedValue.rawValue]
+        XCTAssertTrue(savedLabel.waitForExistence(timeout: app.timeouts.normal))
+        XCTAssertEqual(savedLabel.label, "Saved: Coverage Alias")
+    }
 }
