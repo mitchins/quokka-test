@@ -1,11 +1,15 @@
 import Foundation
 
 /// A generic locator that supports identifier-first lookup with legacy fallback strategies.
-public enum UITestLocator: Sendable, Equatable {
+public enum UITestLocator: Sendable, Equatable, UITestLocating {
     case id(String)
     case label(String)
     case value(String)
     case placeholder(String)
+
+    public var uiTestLocatorChain: UITestLocatorChain {
+        UITestLocatorChain(self)
+    }
 }
 
 extension UITestLocator: CustomStringConvertible {

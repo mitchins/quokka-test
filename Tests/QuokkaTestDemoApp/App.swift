@@ -6,6 +6,13 @@ struct QuokkaTestDemoApp: App {
         WindowGroup {
             ContentView()
         }
+        #if os(macOS)
+        .commands {
+            CommandMenu("QuokkaTest") {
+                Button("Export PDF") {}
+                Button("Print") {}
+            }
+        }
+        #endif
     }
 }
-
