@@ -105,7 +105,7 @@ xcodebuild \
   -project QuokkaTest.xcodeproj \
   -scheme QuokkaDemoTest \
   -sdk iphonesimulator \
-  -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' \
   -derivedDataPath ./.build/xcodebuild \
   -resultBundlePath ./.build/QuokkaTest.xcresult \
   test \

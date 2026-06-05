@@ -37,7 +37,7 @@ jobs:
           xcodebuild \
             -project QuokkaTest.xcodeproj \
             -scheme QuokkaTest \
-            -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
+            -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest" \
             -derivedDataPath ./.build/derivedData \
             -resultBundlePath ./.build/coverage/raw/QuokkaTest.unit.xcresult \
             -enableCodeCoverage YES \
@@ -53,7 +53,7 @@ jobs:
           xcodebuild \
             -project QuokkaTest.xcodeproj \
             -scheme QuokkaDemoTest \
-            -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=latest" \
+            -destination "platform=iOS Simulator,name=iPhone 17 Pro,OS=latest" \
             -derivedDataPath ./.build/derivedData \
             -resultBundlePath ./.build/coverage/raw/QuokkaTest.ui.xcresult \
             -enableCodeCoverage YES \
@@ -62,6 +62,23 @@ jobs:
             SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
             GCC_TREAT_WARNINGS_AS_ERRORS=YES \
             OTHER_SWIFT_FLAGS='-warnings-as-errors'
+
+      - name: Verify coverage bundle outputs
+        if: always()
+        run: |
+          set -euo pipefail
+          test -d ./.build/coverage/raw/QuokkaTest.unit.xcresult || {
+            echo "Unit coverage result bundle missing: ./.build/coverage/raw/QuokkaTest.unit.xcresult"
+            find ./.build/coverage/raw -maxdepth 2 -type d -name '*.xcresult' -print || true
+            exit 1
+          }
+          test -d ./.build/coverage/raw/QuokkaTest.ui.xcresult || {
+            echo "UI coverage result bundle missing: ./.build/coverage/raw/QuokkaTest.ui.xcresult"
+            find ./.build/coverage/raw -maxdepth 2 -type d -name '*.xcresult' -print || true
+            exit 1
+          }
+
+          ls -la ./.build/coverage/raw
 
       - name: Convert coverage to Sonar Cobertura XML
         if: success()
