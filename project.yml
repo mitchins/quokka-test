@@ -52,16 +52,23 @@ targets:
   QuokkaTestDemoApp:
     type: application
     platform: iOS
-    sources: [Tests/QuokkaTestDemoApp]
+    sources:
+      - path: Tests/QuokkaTestDemoApp
+        excludes:
+          - Info.plist
+          - Info-macos.plist
+          - LaunchScreen.storyboard
     resources:
       - path: Tests/QuokkaTestDemoApp/LaunchScreen.storyboard
     info:
       path: Tests/QuokkaTestDemoApp/Info.plist
       properties:
+        CFBundleIdentifier: com.mitchins.QuokkaTestDemoApp
         UILaunchStoryboardName: LaunchScreen
         UIRequiresFullScreen: true
     settings:
       base:
+        GENERATE_INFOPLIST_FILE: NO
         PRODUCT_BUNDLE_IDENTIFIER: com.mitchins.QuokkaTestDemoApp
         OTHER_SWIFT_FLAGS:
           - $(inherited)
@@ -85,11 +92,16 @@ targets:
     sources:
       - path: Tests/QuokkaTestDemoApp
         excludes:
+          - Info.plist
+          - Info-macos.plist
           - LaunchScreen.storyboard
     info:
       path: Tests/QuokkaTestDemoApp/Info-macos.plist
+      properties:
+        CFBundleIdentifier: com.mitchins.QuokkaTestDemoMacApp
     settings:
       base:
+        GENERATE_INFOPLIST_FILE: NO
         PRODUCT_BUNDLE_IDENTIFIER: com.mitchins.QuokkaTestDemoMacApp
         OTHER_SWIFT_FLAGS:
           - $(inherited)

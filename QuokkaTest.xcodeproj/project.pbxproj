@@ -23,7 +23,6 @@
 		4E40CF756951993DC2D52045 /* QuokkaTest.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DD22F01356B610037175C5FB /* QuokkaTest.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4F5FCD0F009EF2E7BE3DAA8D /* UITestDiagnosticsConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671045D55B209CE9BD4BD497 /* UITestDiagnosticsConfiguration.swift */; };
 		53EAD5856F0F52897FDC48ED /* UITestLocatorChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB66E3DCA04A744BC44108C /* UITestLocatorChain.swift */; };
-		5FCCFB644FE2904E06ECB5B4 /* Info-macos.plist in Resources */ = {isa = PBXBuildFile; fileRef = ABEEE12BABD9B982E5B74D07 /* Info-macos.plist */; };
 		6933A6BA47986D62849820CD /* UITestIdentifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66607DC9D18C9B4D3603B45 /* UITestIdentifiable.swift */; };
 		727187027591ABAFF00D4A7F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACC854E5ED5F38B074D7D56 /* ContentView.swift */; };
 		7606883116B2F0A9038F5E79 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5875ABC2212D3B9D0AA3CC0 /* XCTest.framework */; };
@@ -43,7 +42,6 @@
 		B7044A21C5120F97ABF264DC /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACC854E5ED5F38B074D7D56 /* ContentView.swift */; };
 		BA7B1F7C50BD7B0913D64D09 /* XCUIElement+ClearText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FC7C7ADAE67E547A3B3AB19 /* XCUIElement+ClearText.swift */; };
 		BE8B367438F4FF7DBBD62D71 /* UITestAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBF66AAF1689912551F56DAA /* UITestAction.swift */; };
-		C14407FD0FF4056B281D1221 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B0805E4F64C801AABCA55D3A /* LaunchScreen.storyboard */; };
 		C54DD140294FB1B6D5160CEB /* UITestField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A508F6C927C6B2F3CEC33A4 /* UITestField.swift */; };
 		C7599D6522B8BCCCC8E7D9BC /* UITestLaunchConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724E0B59D78287A6F58350F8 /* UITestLaunchConfiguration.swift */; };
 		D03326447F7E8080A178C99A /* QuokkaTestUsageSandboxUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E7F8B186823091DED057A18 /* QuokkaTestUsageSandboxUITests.swift */; };
@@ -52,7 +50,6 @@
 		E86EB9ABB120B8BC83B5E667 /* UITestButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1558B0821A66F581AFD9C211 /* UITestButton.swift */; };
 		EAB6D4DBF9D7D1568F2B83D9 /* UITestElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09A101BE7FF307995AEA53B /* UITestElement.swift */; };
 		F45095526F02BA07777EE037 /* UITestLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F511161BEA823D89BEF9DD3 /* UITestLocator.swift */; };
-		FB812039082ACC13EC3A49CD /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B71A5960531246EC357424D7 /* Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -147,11 +144,8 @@
 		7AB66E3DCA04A744BC44108C /* UITestLocatorChain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestLocatorChain.swift; sourceTree = "<group>"; };
 		8FC7C7ADAE67E547A3B3AB19 /* XCUIElement+ClearText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCUIElement+ClearText.swift"; sourceTree = "<group>"; };
 		9EDD69ABF35E8B09F945154D /* QuokkaTestMacUsageSandboxUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuokkaTestMacUsageSandboxUITests.swift; sourceTree = "<group>"; };
-		ABEEE12BABD9B982E5B74D07 /* Info-macos.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Info-macos.plist"; sourceTree = "<group>"; };
-		B0805E4F64C801AABCA55D3A /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B09A101BE7FF307995AEA53B /* UITestElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestElement.swift; sourceTree = "<group>"; };
 		B6016A211159CF6E715DB9DF /* UITestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestApp.swift; sourceTree = "<group>"; };
-		B71A5960531246EC357424D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		BACC854E5ED5F38B074D7D56 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C5875ABC2212D3B9D0AA3CC0 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 		DBF66AAF1689912551F56DAA /* UITestAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestAction.swift; sourceTree = "<group>"; };
@@ -228,9 +222,6 @@
 			children = (
 				55A106C6898F41C7F90E7DF6 /* App.swift */,
 				BACC854E5ED5F38B074D7D56 /* ContentView.swift */,
-				ABEEE12BABD9B982E5B74D07 /* Info-macos.plist */,
-				B71A5960531246EC357424D7 /* Info.plist */,
-				B0805E4F64C801AABCA55D3A /* LaunchScreen.storyboard */,
 			);
 			name = QuokkaTestDemoApp;
 			path = Tests/QuokkaTestDemoApp;
@@ -388,7 +379,6 @@
 			buildConfigurationList = 7B9E22043532A4EDE24653AE /* Build configuration list for PBXNativeTarget "QuokkaTestDemoMacApp" */;
 			buildPhases = (
 				B376738AF78A92F8440C9BE5 /* Sources */,
-				4AA0C4F745768C62233868DC /* Resources */,
 			);
 			buildRules = (
 			);
@@ -427,7 +417,6 @@
 			buildConfigurationList = 353ED5A0E3A26EA0585BF388 /* Build configuration list for PBXNativeTarget "QuokkaTestDemoApp" */;
 			buildPhases = (
 				47CC14FB0C25A4F96531597F /* Sources */,
-				A525C31B5FEE611F296D4292 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -481,26 +470,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXResourcesBuildPhase section */
-		4AA0C4F745768C62233868DC /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				FB812039082ACC13EC3A49CD /* Info.plist in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A525C31B5FEE611F296D4292 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5FCCFB644FE2904E06ECB5B4 /* Info-macos.plist in Resources */,
-				C14407FD0FF4056B281D1221 /* LaunchScreen.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2833B51EEF3EF6E55A103813 /* Sources */ = {
@@ -777,6 +746,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Tests/QuokkaTestDemoApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -884,6 +854,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Tests/QuokkaTestDemoApp/Info-macos.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1000,6 +971,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Tests/QuokkaTestDemoApp/Info-macos.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1038,6 +1010,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Tests/QuokkaTestDemoApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
