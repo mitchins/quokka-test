@@ -503,27 +503,12 @@ public struct UITestApp {
             return missingElement(in: raw.searchFields)
         }
 
-        let searchFieldPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-            NSPredicate(
-                format: "elementType == %@",
-                XCUIElement.ElementType.searchField.rawValue as NSNumber
-            ),
-            locatorPredicate
-        ])
+        let searchFieldMatch = raw.searchFields.matching(locatorPredicate).firstMatch
+        if searchFieldMatch.exists {
+            return searchFieldMatch
+        }
 
-        let textFieldPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-            NSPredicate(
-                format: "elementType == %@",
-                XCUIElement.ElementType.textField.rawValue as NSNumber
-            ),
-            locatorPredicate
-        ])
-
-        return raw.descendants(matching: .any).matching(
-            NSCompoundPredicate(
-                orPredicateWithSubpredicates: [searchFieldPredicate, textFieldPredicate]
-            )
-        ).firstMatch
+        return raw.textFields.matching(locatorPredicate).firstMatch
     }
 
     private func resolveAlert(_ locatorChain: UITestLocatorChain) -> XCUIElement {
@@ -622,9 +607,7 @@ public struct UITestApp {
     private func missingElement(in query: XCUIElementQuery) -> XCUIElement {
         // A deterministic, never-present element used for fallback paths where no
         // locator can be represented as a query predicate.
-        query.matching(
-            NSPredicate(format: "identifier == %@", "quokka-test-missing-element")
-        ).firstMatch
+        query.matching(NSPredicate(value: false)).firstMatch
     }
 
     internal func menuItemLabels(in container: XCUIElement) -> [String] {
