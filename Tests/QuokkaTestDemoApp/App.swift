@@ -10,7 +10,9 @@ struct QuokkaTestDemoApp: App {
         .commands {
             CommandMenu("QuokkaTest") {
                 Button("Export PDF") {}
+                    .accessibilityIdentifier("quokka-test-export-pdf")
                 Button("Print") {}
+                    .accessibilityIdentifier("quokka-test-print")
             }
         }
         #endif

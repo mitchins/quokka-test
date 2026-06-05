@@ -82,8 +82,6 @@ struct ContentView: View {
             .padding()
         }
         .accessibilityIdentifier("settings.scroll")
-        .navigationTitle("Cards")
-        .accessibilityIdentifier("cards.navigationTitle")
         .alert("Error", isPresented: $showAlert) {
             Button("OK", role: .cancel) {
                 showAlert = false
@@ -97,5 +95,6 @@ struct ContentView: View {
         searchCards = ""
         savedAliases = ""
         showAlert = false
+        showPhaseTwoNegativeTarget = false
     }
 }

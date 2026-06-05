@@ -36,13 +36,25 @@ public struct UITestElement: UITestActionSurface {
         let waitTimeout = timeout ?? timeouts.normal
         let deadline = Date().addingTimeInterval(waitTimeout)
         var attempts = 0
+        let scrollContainer = raw.exists ? raw : application.scrollViews.firstMatch
+
+        if !scrollContainer.exists {
+            fail(
+                action: "swipeUpUntilExists",
+                details: "Expected a scrollable container matching: \(locator.description)",
+                timeout: waitTimeout,
+                file: file,
+                line: line
+            )
+            return self
+        }
 
         while Date() < deadline && attempts < maxAttempts {
-            if target.raw.isHittable || target.raw.exists {
+            if target.raw.isHittable {
                 return self
             }
 
-            raw.swipeUp()
+            scrollContainer.swipeUp()
             attempts += 1
             UITestWaiter.yield(for: 0.1)
         }

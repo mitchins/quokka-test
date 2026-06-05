@@ -484,27 +484,7 @@ public struct UITestApp {
     }
 
     private func resolveElementAcrossTypes(_ locatorChain: UITestLocatorChain) -> XCUIElement {
-        let candidateQueries: [(XCUIElementQuery, Bool)] = [
-            (raw.buttons, false),
-            (raw.staticTexts, false),
-            (raw.textFields, true),
-            (raw.secureTextFields, true),
-            (raw.searchFields, true),
-            (raw.textViews, true),
-            (raw.switches, false),
-            (raw.cells, false),
-            (raw.images, false),
-            (raw.otherElements, false)
-        ]
-
-        for (query, supportsPlaceholder) in candidateQueries {
-            let match = resolve(locatorChain, in: query, supportsPlaceholder: supportsPlaceholder)
-            if match.exists {
-                return match
-            }
-        }
-
-        return missingElement(in: raw.otherElements)
+        resolve(locatorChain, in: raw.descendants(matching: .any), supportsPlaceholder: true)
     }
 
     private func resolveStaticText(_ locatorChain: UITestLocatorChain) -> XCUIElement {
@@ -512,19 +492,38 @@ public struct UITestApp {
     }
 
     private func resolveNavigationBar(_ locatorChain: UITestLocatorChain) -> XCUIElement {
-        let directMatch = resolve(locatorChain, in: raw.navigationBars, supportsPlaceholder: false)
-        if directMatch.exists {
-            return directMatch
-        }
-        return missingElement(in: raw.navigationBars)
+        resolve(locatorChain, in: raw.navigationBars, supportsPlaceholder: false)
     }
 
     private func resolveSearchField(_ locatorChain: UITestLocatorChain) -> XCUIElement {
-        let searchFieldMatch = resolve(locatorChain, in: raw.searchFields, supportsPlaceholder: true)
-        if searchFieldMatch.exists {
-            return searchFieldMatch
+        guard let locatorPredicate = locatorPredicates(
+            for: locatorChain,
+            supportsPlaceholder: true
+        ) else {
+            return missingElement(in: raw.searchFields)
         }
-        return resolve(locatorChain, in: raw.textFields, supportsPlaceholder: true)
+
+        let searchFieldPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(
+                format: "elementType == %@",
+                XCUIElement.ElementType.searchField.rawValue as NSNumber
+            ),
+            locatorPredicate
+        ])
+
+        let textFieldPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(
+                format: "elementType == %@",
+                XCUIElement.ElementType.textField.rawValue as NSNumber
+            ),
+            locatorPredicate
+        ])
+
+        return raw.descendants(matching: .any).matching(
+            NSCompoundPredicate(
+                orPredicateWithSubpredicates: [searchFieldPredicate, textFieldPredicate]
+            )
+        ).firstMatch
     }
 
     private func resolveAlert(_ locatorChain: UITestLocatorChain) -> XCUIElement {
@@ -545,15 +544,13 @@ public struct UITestApp {
         supportsPlaceholder: Bool
     ) -> XCUIElement {
         precondition(!locatorChain.locators.isEmpty, "Locator chain cannot be empty.")
-
-        for locator in locatorChain.locators {
-            let element = resolve(locator, in: query, supportsPlaceholder: supportsPlaceholder)
-            if element.exists {
-                return element
-            }
+        guard let locatorPredicate = locatorPredicates(
+            for: locatorChain,
+            supportsPlaceholder: supportsPlaceholder
+        ) else {
+            return missingElement(in: query)
         }
-
-        return missingElement(in: query)
+        return query.matching(locatorPredicate).firstMatch
     }
 
     private func resolve(
@@ -561,8 +558,7 @@ public struct UITestApp {
         in query: XCUIElementQuery,
         supportsPlaceholder: Bool
     ) -> XCUIElement {
-        let exactMatch = resolveExact(locator, in: query, supportsPlaceholder: supportsPlaceholder)
-        return exactMatch.exists ? exactMatch : missingElement(in: query)
+        resolveExact(locator, in: query, supportsPlaceholder: supportsPlaceholder)
     }
 
     private func resolveExact(
@@ -585,9 +581,49 @@ public struct UITestApp {
         }
     }
 
+    private func locatorPredicates(
+        for locatorChain: UITestLocatorChain,
+        supportsPlaceholder: Bool
+    ) -> NSPredicate? {
+        let predicates = locatorChain.locators.compactMap {
+            locatorPredicate(for: $0, supportsPlaceholder: supportsPlaceholder)
+        }
+
+        guard !predicates.isEmpty else {
+            return nil
+        }
+
+        guard predicates.count > 1 else {
+            return predicates[0]
+        }
+
+        return NSCompoundPredicate(orPredicateWithSubpredicates: predicates)
+    }
+
+    private func locatorPredicate(
+        for locator: UITestLocator,
+        supportsPlaceholder: Bool
+    ) -> NSPredicate? {
+        switch locator {
+        case let .id(value):
+            return NSPredicate(format: "identifier == %@", value)
+        case let .label(value):
+            return NSPredicate(format: "label == %@", value)
+        case let .value(value):
+            return NSPredicate(format: "value == %@", value)
+        case let .placeholder(value):
+            guard supportsPlaceholder else {
+                return nil
+            }
+            return NSPredicate(format: "placeholderValue == %@", value)
+        }
+    }
+
     private func missingElement(in query: XCUIElementQuery) -> XCUIElement {
+        // A deterministic, never-present element used for fallback paths where no
+        // locator can be represented as a query predicate.
         query.matching(
-            NSPredicate(format: "identifier == %@", "quokka-test-missing-element-\(UUID().uuidString)")
+            NSPredicate(format: "identifier == %@", "quokka-test-missing-element")
         ).firstMatch
     }
 

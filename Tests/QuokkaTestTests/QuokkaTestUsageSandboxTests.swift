@@ -116,10 +116,4 @@ final class QuokkaTestUsageSandboxTests: XCTestCase {
         XCTAssertFalse(config.attachHierarchyOnFailure)
     }
 
-    func testUiTestSandbox_isExplicitlySkippable() throws {
-        throw XCTSkip(
-            "UI integration test sandbox is intentionally skipped by default. " +
-            "Enable on simulator UI runners and replace this body with full card editor flow assertions."
-        )
-    }
 }

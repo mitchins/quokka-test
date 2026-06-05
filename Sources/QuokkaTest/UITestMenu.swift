@@ -7,11 +7,6 @@ public struct UITestMenu {
     public let menu: UITestElement
     public let app: UITestApp
 
-    init(menu: UITestElement, app: UITestApp) {
-        self.menu = menu
-        self.app = app
-    }
-
     /// Returns labels for direct menu item descendants.
     public func items() -> [String] {
         app.menuItemLabels(in: menu.raw)
@@ -57,6 +52,17 @@ public struct UITestMenu {
         line: UInt = #line
     ) -> Self {
         let item = menuItem(.label(label))
+        if !item.raw.waitForExistence(timeout: app.timeouts.short) {
+            app.failWithDiagnostics(
+                action: "UITestMenu.assertMenuItemEnabled",
+                details: "Expected menu item '\(label)' to exist",
+                locator: "\(menu.locator.description) > label(\(label))",
+                timeout: app.timeouts.short,
+                file: file,
+                line: line
+            )
+            return self
+        }
         if !item.raw.isEnabled {
             app.failWithDiagnostics(
                 action: "UITestMenu.assertMenuItemEnabled",
@@ -78,6 +84,17 @@ public struct UITestMenu {
         line: UInt = #line
     ) -> Self {
         let item = menuItem(.label(label))
+        if !item.raw.waitForExistence(timeout: app.timeouts.short) {
+            app.failWithDiagnostics(
+                action: "UITestMenu.assertMenuItemDisabled",
+                details: "Expected menu item '\(label)' to exist",
+                locator: "\(menu.locator.description) > label(\(label))",
+                timeout: app.timeouts.short,
+                file: file,
+                line: line
+            )
+            return self
+        }
         if item.raw.isEnabled {
             app.failWithDiagnostics(
                 action: "UITestMenu.assertMenuItemDisabled",

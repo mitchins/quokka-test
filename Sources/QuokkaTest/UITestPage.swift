@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 
 @MainActor
-public enum UITestPageAnchor: Sendable {
+public enum UITestPageAnchor {
     case locator(UITestLocator)
     case locatorChain(UITestLocatorChain)
     case staticText(String)
@@ -11,7 +11,7 @@ public enum UITestPageAnchor: Sendable {
 }
 
 @MainActor
-public enum UITestPageReadiness: Sendable {
+public enum UITestPageReadiness {
     case none
     case locator(UITestLocator)
     case locatorChain(UITestLocatorChain)
@@ -84,10 +84,14 @@ public struct UITestPage {
         switch readiness {
         case .notExists(let locator):
             let readinessView = app.element(locator, resolution: .crossSurface)
-            isReady = !readinessView.raw.waitForExistence(timeout: waitTimeout)
+            isReady = UITestWaiter.until(timeout: waitTimeout) {
+                !readinessView.raw.exists
+            }
         case .notExistsChain(let locatorChain):
             let readinessView = app.element(locatorChain, resolution: .crossSurface)
-            isReady = !readinessView.raw.waitForExistence(timeout: waitTimeout)
+            isReady = UITestWaiter.until(timeout: waitTimeout) {
+                !readinessView.raw.exists
+            }
         case let .valueEquals(locator, expected):
             let readinessView = app.element(locator, resolution: .crossSurface)
             var actualValue: String?

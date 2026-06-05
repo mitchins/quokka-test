@@ -149,15 +149,23 @@ enum UITestAction {
         line: UInt
     ) {
         let waitTimeout = timeout ?? timeouts.short
-        if element.raw.waitForExistence(timeout: waitTimeout) {
-            element.fail(
-                action: "assertNotExists",
-                details: "Expected element to not exist",
-                timeout: waitTimeout,
-                file: file,
-                line: line
-            )
+        if !element.raw.exists {
+            return
         }
+
+        if UITestWaiter.until(timeout: waitTimeout, condition: {
+            !element.raw.exists
+        }) {
+            return
+        }
+
+        element.fail(
+            action: "assertNotExists",
+            details: "Expected element to not exist",
+            timeout: waitTimeout,
+            file: file,
+            line: line
+        )
     }
 
     static func assertEnabled(
@@ -335,8 +343,8 @@ enum UITestAction {
         }
 
         let typePredicate = NSPredicate(
-            format: "elementType == %d",
-            element.elementType.rawValue
+            format: "elementType == %@",
+            element.elementType.rawValue as NSNumber
         )
         let identityPredicate = predicate(for: identityLocator)
         return NSCompoundPredicate(andPredicateWithSubpredicates: [typePredicate, identityPredicate])
