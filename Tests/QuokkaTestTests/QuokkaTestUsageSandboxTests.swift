@@ -38,15 +38,82 @@ final class QuokkaTestUsageSandboxTests: XCTestCase {
         XCTAssertFalse(expectedUsage.isEmpty)
     }
 
-    func testUiTestSandbox_isExplicitlySkippable() throws {
-        throw XCTSkip(
-            "UI integration test sandbox is intentionally skipped by default. " +
-            "Enable on simulator UI runners and replace this body with full card editor flow assertions."
-        )
-    }
-
     func testGenericLocatorExamplesAreExplicit() {
         XCTAssertEqual(UITestLocator.label("Save").description, "label(Save)")
         XCTAssertEqual(UITestLocator.placeholder("Card aliases").description, "placeholder(Card aliases)")
     }
+
+    func testLaunchConfigurationHasExpectedShape() {
+        let config = UITestLaunchConfiguration(
+            arguments: ["-AppleLanguages", "(en)"],
+            environment: ["UITEST_MODE": "unit"]
+        )
+        XCTAssertEqual(config.arguments, ["-AppleLanguages", "(en)"])
+        XCTAssertEqual(config.environment["UITEST_MODE"], "unit")
+    }
+
+    func testLaunchOptionSetSupportsChainingInputs() {
+        let options: [UITestLaunchOption] = [
+            .argument("-AppleLanguages"),
+            .argument("(en)"),
+            .environment("UITEST_MODE", "unit")
+        ]
+        XCTAssertEqual(options.count, 3)
+    }
+
+    func testLocatorChainCapturesOrderedFallbackSequence() {
+        let chain = UITestLocatorChain(
+            .id("cardEditor.save"),
+            .label("Save"),
+            .value("Save")
+        )
+
+        XCTAssertEqual(
+            chain.description,
+            "first match: id(cardEditor.save) -> label(Save) -> value(Save)"
+        )
+    }
+
+    func testPageReadinessIdentifiersAreDescribed() {
+        let anchorDescription = UITestPageAnchor.navigationTitle("Cards")
+        if case let .navigationTitle(value) = anchorDescription {
+            XCTAssertEqual(value, "Cards")
+        } else {
+            XCTFail("Anchor should preserve navigation title")
+        }
+
+        let readinessDescription = UITestPageReadiness.buttonTitle("Save")
+        if case let .buttonTitle(value) = readinessDescription {
+            XCTAssertEqual(value, "Save")
+        } else {
+            XCTFail("Readiness should preserve button title")
+        }
+
+        let notExists = UITestPageReadiness.notExists(.id("missing"))
+        if case let .notExists(missingLocator) = notExists {
+            XCTAssertEqual(missingLocator, .id("missing"))
+        } else {
+            XCTFail("Readiness should support .notExists")
+        }
+
+        let valueEquals = UITestPageReadiness.valueEquals(.id("value-field"), "value")
+        if case let .valueEquals(locator, expected) = valueEquals {
+            XCTAssertEqual(locator, .id("value-field"))
+            XCTAssertEqual(expected, "value")
+        } else {
+            XCTFail("Readiness should support .valueEquals(locator, value)")
+        }
+    }
+
+    func testElementResolutionOptionsExist() {
+        XCTAssertEqual(UITestApp.QueryResolution.surface, .surface)
+        XCTAssertEqual(UITestApp.QueryResolution.crossSurface, .crossSurface)
+    }
+
+    func testDiagnosticsConfigurationDefaultsOffByDefault() {
+        let config = UITestDiagnosticsConfiguration()
+        XCTAssertFalse(config.attachScreenshotOnFailure)
+        XCTAssertFalse(config.attachHierarchyOnFailure)
+    }
+
 }

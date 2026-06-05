@@ -3,6 +3,7 @@ options:
   bundleIdPrefix: com.mitchins
   deploymentTarget:
     iOS: "15.0"
+    macOS: "12.0"
   generateEmptyDirectories: true
 
 packages: {}
@@ -34,19 +35,40 @@ targets:
           - $(inherited)
           - -warnings-as-errors
 
+  QuokkaTestMac:
+    type: framework
+    platform: macOS
+    sources: [Sources/QuokkaTest]
+    dependencies:
+      - sdk: XCTest.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mitchins.QuokkaTestMac
+        PRODUCT_MODULE_NAME: QuokkaTestMac
+        OTHER_SWIFT_FLAGS:
+          - $(inherited)
+          - -warnings-as-errors
+
   QuokkaTestDemoApp:
     type: application
     platform: iOS
-    sources: [Tests/QuokkaTestDemoApp]
+    sources:
+      - path: Tests/QuokkaTestDemoApp
+        excludes:
+          - Info.plist
+          - Info-macos.plist
+          - LaunchScreen.storyboard
     resources:
       - path: Tests/QuokkaTestDemoApp/LaunchScreen.storyboard
     info:
       path: Tests/QuokkaTestDemoApp/Info.plist
       properties:
+        CFBundleIdentifier: com.mitchins.QuokkaTestDemoApp
         UILaunchStoryboardName: LaunchScreen
         UIRequiresFullScreen: true
     settings:
       base:
+        GENERATE_INFOPLIST_FILE: NO
         PRODUCT_BUNDLE_IDENTIFIER: com.mitchins.QuokkaTestDemoApp
         OTHER_SWIFT_FLAGS:
           - $(inherited)
@@ -64,6 +86,27 @@ targets:
           - $(inherited)
           - -warnings-as-errors
 
+  QuokkaTestDemoMacApp:
+    type: application
+    platform: macOS
+    sources:
+      - path: Tests/QuokkaTestDemoApp
+        excludes:
+          - Info.plist
+          - Info-macos.plist
+          - LaunchScreen.storyboard
+    info:
+      path: Tests/QuokkaTestDemoApp/Info-macos.plist
+      properties:
+        CFBundleIdentifier: com.mitchins.QuokkaTestDemoMacApp
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: NO
+        PRODUCT_BUNDLE_IDENTIFIER: com.mitchins.QuokkaTestDemoMacApp
+        OTHER_SWIFT_FLAGS:
+          - $(inherited)
+          - -warnings-as-errors
+
   QuokkaTestUITests:
     type: bundle.ui-testing
     platform: iOS
@@ -71,6 +114,19 @@ targets:
     dependencies:
       - target: QuokkaTest
       - target: QuokkaTestDemoApp
+    settings:
+      base:
+        OTHER_SWIFT_FLAGS:
+          - $(inherited)
+          - -warnings-as-errors
+
+  QuokkaTestMacUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources: [Tests/QuokkaTestMacUITests]
+    dependencies:
+      - target: QuokkaTestMac
+      - target: QuokkaTestDemoMacApp
     settings:
       base:
         OTHER_SWIFT_FLAGS:
@@ -87,6 +143,22 @@ schemes:
       gatherCoverageData: true
       targets:
         - QuokkaTestTests
+
+  QuokkaDemoMac:
+    shared: true
+    build:
+      targets:
+        QuokkaTestDemoMacApp: all
+
+  QuokkaDemoMacTest:
+    shared: true
+    build:
+      targets:
+        QuokkaTestDemoMacApp: all
+    test:
+      gatherCoverageData: true
+      targets:
+        - QuokkaTestMacUITests
 
   QuokkaDemoTest:
     shared: true

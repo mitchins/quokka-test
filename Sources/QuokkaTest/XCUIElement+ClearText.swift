@@ -2,13 +2,7 @@ import XCTest
 
 @MainActor
 extension XCUIElement {
-    func clearText(
-        in application: XCUIApplication,
-        timeouts: UITestTimeouts
-    ) {
-        _ = application
-        _ = timeouts
-
+    func clearText() {
         guard let currentValue = value as? String else {
             return
         }
