@@ -126,6 +126,12 @@ final class QuokkaTestUsageSandboxTests: XCTestCase {
     @MainActor
     func testSurfaceScopedMatchQuerySupportsCountAssertions() {
         XCTAssertEqual(String(describing: UITestMatchQuery.self), "UITestMatchQuery")
+
+        let fluentCountAssertion:
+            (UITestMatchQuery) -> (Int, TimeInterval?, StaticString, UInt) -> UITestMatchQuery =
+                UITestMatchQuery.assertCount(_:timeout:file:line:)
+
+        _ = fluentCountAssertion
     }
 
 }

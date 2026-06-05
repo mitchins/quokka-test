@@ -74,7 +74,7 @@ public enum UITestSync {
     public static func until(
         timeout: TimeInterval,
         pollInterval: TimeInterval = 0.05,
-        condition: @escaping () -> Bool
+        condition: () -> Bool
     ) -> Bool {
         UITestWaiter.until(
             timeout: timeout,
@@ -480,6 +480,18 @@ enum UITestAction {
         line: UInt
     ) {
         let waitTimeout = timeout ?? query.timeouts.short
+
+        guard expectedCount >= 0 else {
+            query.fail(
+                action: "assertCount",
+                details: "Expected count must be >= 0, got \(expectedCount)",
+                timeout: waitTimeout,
+                file: file,
+                line: line
+            )
+            return
+        }
+
         var matchCount = query.raw.count
 
         if UITestWaiter.until(timeout: waitTimeout, condition: {
@@ -627,16 +639,21 @@ enum UITestAction {
         line: UInt
     ) {
         let waitTimeout = timeouts.normal
+        let deadline = Date().addingTimeInterval(waitTimeout)
 
-        guard element.raw.waitForExistence(timeout: waitTimeout) else {
+        func remaining() -> TimeInterval {
+            max(0, deadline.timeIntervalSinceNow)
+        }
+
+        guard element.raw.waitForExistence(timeout: remaining()) else {
             element.fail(
                 action: "assertVisible(in:)",
                 details: visibilityFailureDetails(
                     "Expected element to exist before checking container-relative visibility",
                     element: element,
                     container: container,
-                    elementFrame: element.raw.frame,
-                    containerFrame: container.raw.frame
+                    elementFrame: .zero,
+                    containerFrame: .zero
                 ),
                 timeout: waitTimeout,
                 file: file,
@@ -645,7 +662,7 @@ enum UITestAction {
             return
         }
 
-        guard container.raw.waitForExistence(timeout: waitTimeout) else {
+        guard container.raw.waitForExistence(timeout: remaining()) else {
             element.fail(
                 action: "assertVisible(in:)",
                 details: visibilityFailureDetails(
@@ -653,7 +670,7 @@ enum UITestAction {
                     element: element,
                     container: container,
                     elementFrame: element.raw.frame,
-                    containerFrame: container.raw.frame
+                    containerFrame: .zero
                 ),
                 timeout: waitTimeout,
                 file: file,

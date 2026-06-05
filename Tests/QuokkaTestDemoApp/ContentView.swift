@@ -182,6 +182,7 @@ private struct IdentifiedTextField: UIViewRepresentable {
         textField.borderStyle = .roundedRect
         textField.placeholder = placeholder
         textField.accessibilityIdentifier = identifier
+        textField.accessibilityLabel = placeholder
         textField.addTarget(
             context.coordinator,
             action: #selector(Coordinator.editingChanged(_:)),
@@ -196,6 +197,7 @@ private struct IdentifiedTextField: UIViewRepresentable {
         }
         uiView.placeholder = placeholder
         uiView.accessibilityIdentifier = identifier
+        uiView.accessibilityLabel = placeholder
     }
 
     @MainActor
