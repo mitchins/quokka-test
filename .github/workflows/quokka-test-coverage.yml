@@ -35,32 +35,69 @@ jobs:
         run: |
           set -euo pipefail
 
-          AVAILABLE_DESTINATIONS="$(xcodebuild -project QuokkaTest.xcodeproj -scheme QuokkaTest -showdestinations 2>&1)"
-
-          SIMULATOR_ID="$(
-            printf "%s\n" "$AVAILABLE_DESTINATIONS" |
-            awk '
-              /platform:iOS Simulator/ && /name:iPhone/ && $0 !~ /name:Any iOS Simulator Device/ {
+          resolve_simulator_id() {
+            printf "%s\n" "$1" |
+              awk '/platform:iOS Simulator/ && $0 !~ /Any iOS Simulator Device/ {
                 if (match($0, /id:[^, ]*/)) {
                   print substr($0, RSTART + 3, RLENGTH - 3)
                   exit
                 }
-              }
-            '
-          )"
+              }'
+          }
+
+          resolve_iPhone_simulator_id() {
+            printf "%s\n" "$1" |
+              awk '/platform:iOS Simulator/ && /name:iPhone/ && $0 !~ /name:Any iOS Simulator Device/ {
+                if (match($0, /id:[^, ]*/)) {
+                  print substr($0, RSTART + 3, RLENGTH - 3)
+                  exit
+                }
+              }'
+          }
+
+          AVAILABLE_DESTINATIONS="$(xcodebuild -project QuokkaTest.xcodeproj -scheme QuokkaTest -showdestinations 2>&1)"
+
+          SIMULATOR_ID="$(resolve_iPhone_simulator_id "$AVAILABLE_DESTINATIONS")"
+          if [ -z "$SIMULATOR_ID" ]; then
+            SIMULATOR_ID="$(resolve_simulator_id "$AVAILABLE_DESTINATIONS")"
+          fi
 
           if [ -z "$SIMULATOR_ID" ]; then
-            SIMULATOR_ID="$(
-              printf "%s\n" "$AVAILABLE_DESTINATIONS" |
-              awk '
-                /platform:iOS Simulator/ && $0 !~ /Any iOS Simulator Device/ {
-                  if (match($0, /id:[^, ]*/)) {
-                    print substr($0, RSTART + 3, RLENGTH - 3)
-                    exit
-                  }
-                }
-              '
-            )"
+            echo "No concrete iOS simulator destination was found yet; attempting bootstrap."
+
+            xcodebuild -downloadPlatform iOS
+            AVAILABLE_DESTINATIONS="$(xcodebuild -project QuokkaTest.xcodeproj -scheme QuokkaTest -showdestinations 2>&1)"
+            SIMULATOR_ID="$(resolve_iPhone_simulator_id "$AVAILABLE_DESTINATIONS")"
+            if [ -z "$SIMULATOR_ID" ]; then
+              SIMULATOR_ID="$(resolve_simulator_id "$AVAILABLE_DESTINATIONS")"
+            fi
+
+            if [ -z "$SIMULATOR_ID" ]; then
+              RUNTIME_ID="$(xcrun simctl list runtimes | awk -F'[()]' '/^iOS/ {print $2; exit}')"
+              if [ -z "$RUNTIME_ID" ]; then
+                echo "Failed to resolve an iOS simulator runtime ID."
+                echo "$AVAILABLE_DESTINATIONS"
+                exit 1
+              fi
+
+              DEVICE_TYPE_ID="$(xcrun simctl list devicetypes | awk -F'[()]' '/iPhone .*Pro/ {print $2; exit}')"
+              if [ -z "$DEVICE_TYPE_ID" ]; then
+                DEVICE_TYPE_ID="$(xcrun simctl list devicetypes | awk -F'[()]' '/iPhone/ {print $2; exit}')"
+              fi
+
+              if [ -z "$DEVICE_TYPE_ID" ]; then
+                echo "Failed to resolve an iPhone simulator device type ID."
+                exit 1
+              fi
+
+              SIMULATOR_NAME="QuokkaTestCI iPhone"
+              SIMULATOR_ID="$(xcrun simctl create "$SIMULATOR_NAME" "$DEVICE_TYPE_ID" "$RUNTIME_ID")"
+
+              if [ -z "$SIMULATOR_ID" ]; then
+                echo "Failed to create or resolve an iOS simulator."
+                exit 1
+              fi
+            fi
           fi
 
           if [ -z "$SIMULATOR_ID" ]; then
