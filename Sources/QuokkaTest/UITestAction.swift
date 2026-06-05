@@ -82,9 +82,9 @@ internal protocol _UITestActionSurface {
 }
 
 @MainActor
-public extension _UITestActionSurface {
+extension _UITestActionSurface {
     @discardableResult
-    func assertExists(
+    public func assertExists(
         timeout: TimeInterval? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
@@ -101,7 +101,7 @@ public extension _UITestActionSurface {
     }
 
     @discardableResult
-    func assertHittable(
+    public func assertHittable(
         timeout: TimeInterval? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
@@ -118,7 +118,7 @@ public extension _UITestActionSurface {
     }
 
     @discardableResult
-    func tapWhenReady(
+    public func tapWhenReady(
         timeout: TimeInterval? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
