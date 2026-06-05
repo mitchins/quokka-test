@@ -116,4 +116,21 @@ final class QuokkaTestUsageSandboxTests: XCTestCase {
         XCTAssertFalse(config.attachHierarchyOnFailure)
     }
 
+    func testSyncUtilitySupportsBasicWaitingContracts() {
+        XCTAssertTrue(UITestSync.until(timeout: 0) { true })
+        XCTAssertTrue(UITestSync.untilAllExist([], timeout: 0))
+        XCTAssertTrue(UITestSync.untilAllNotExist([], timeout: 0))
+    }
+
+    @MainActor
+    func testSurfaceScopedMatchQuerySupportsCountAssertions() {
+        let app = UITestApp(XCUIApplication())
+        let query = app.buttons(
+            UITestLocatorChain(.id("shell-sidebar-toggle"), .label("Sidebar"))
+        )
+
+        XCTAssertEqual(query.surface, "buttons")
+        XCTAssertEqual(query.count, 0)
+    }
+
 }

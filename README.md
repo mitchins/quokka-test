@@ -135,6 +135,44 @@ app.alert(UITestLocator.label("Error")).assertNotExists()
 app.staticText(UITestLocator.label("Based on nearby match")).assertNotExists(timeout: app.timeouts.short)
 ```
 
+### Synchronization helpers
+
+```swift
+app.element(.id("loading-spinner"))
+    .waitUntilExists(timeout: 5)
+
+app.button(.id("saved-connection-connect"))
+    .waitUntilNotExists(timeout: 2)
+
+XCTAssertTrue(
+    UITestSync.untilAllNotExist(
+        [
+            app.button(.id("saved-connection-connect")),
+            app.button(.id("saved-connection-update")),
+        ],
+        timeout: 2
+    )
+)
+```
+
+### Surface-scoped counts
+
+```swift
+app.buttons(
+    UITestLocatorChain(
+        .id("shell-sidebar-toggle"),
+        .label("Sidebar")
+    )
+).assertCount(1)
+```
+
+### Container-relative visibility
+
+```swift
+app.element(.id("saved-connection-inline-error"))
+    .assertVisible(in: app.element(.id("saved-connection-detail-panel")))
+```
+
 ### Scroll helper
 
 ```swift

@@ -112,6 +112,18 @@ public struct UITestApp {
         )
     }
 
+    public func buttons(_ locator: some UITestLocating) -> UITestMatchQuery {
+        let locatorChain = locator.uiTestLocatorChain
+        return UITestMatchQuery(
+            raw: matchQuery(locatorChain, in: raw.buttons, supportsPlaceholder: false),
+            locator: UITestLocatorContext(locatorChain),
+            surface: "buttons",
+            timeouts: timeouts,
+            application: raw,
+            diagnosticsConfiguration: diagnosticsConfiguration
+        )
+    }
+
     public func element(
         _ locator: some UITestLocating,
         resolution: QueryResolution = .surface
@@ -134,6 +146,18 @@ public struct UITestApp {
             timeouts: timeouts,
             application: raw,
             diagnostics: diagnosticsConfiguration
+        )
+    }
+
+    public func staticTexts(_ locator: some UITestLocating) -> UITestMatchQuery {
+        let locatorChain = locator.uiTestLocatorChain
+        return UITestMatchQuery(
+            raw: matchQuery(locatorChain, in: raw.staticTexts, supportsPlaceholder: false),
+            locator: UITestLocatorContext(locatorChain),
+            surface: "staticTexts",
+            timeouts: timeouts,
+            application: raw,
+            diagnosticsConfiguration: diagnosticsConfiguration
         )
     }
 
@@ -259,6 +283,21 @@ public struct UITestApp {
             file: file,
             line: line
         )
+    }
+
+    private func matchQuery(
+        _ locatorChain: UITestLocatorChain,
+        in query: XCUIElementQuery,
+        supportsPlaceholder: Bool
+    ) -> XCUIElementQuery {
+        guard let predicate = locatorPredicates(
+            for: locatorChain,
+            supportsPlaceholder: supportsPlaceholder
+        ) else {
+            return query.matching(NSPredicate(value: false))
+        }
+
+        return query.matching(predicate)
     }
 
     #if os(macOS)

@@ -6,6 +6,7 @@ private enum CardEditorLocator: String, UITestIdentifiable {
     case save = "cardEditor.save"
     case savedValue = "cardEditor.savedValue"
     case merchantSearch = "cardEditor.merchantSearch"
+    case detailPanel = "cardEditor.detailPanel"
 }
 
 private enum RootLocator: String, UITestIdentifiable {
@@ -54,6 +55,7 @@ final class QuokkaTestUsageSandboxUITests: XCTestCase {
             .assertExists()
             .assertLabelContains("Keyboard Alias")
             .assertMatchCount(1)
+            .assertVisible(in: app.element(CardEditorLocator.detailPanel))
 
         let savedAliasLabel = "Saved: \(alias)"
         app.staticText(UITestLocator.label(savedAliasLabel)).assertMatchCount(1)

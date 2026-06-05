@@ -5,7 +5,7 @@ struct ContentView: View {
     @State private var searchCards = ""
     @State private var savedAliases = ""
     @State private var showAlert = false
-    @State private var showPhaseTwoNegativeTarget = false
+    @State private var showNegativeTarget = false
 
     var body: some View {
         Group {
@@ -42,25 +42,27 @@ struct ContentView: View {
                 .buttonStyle(.bordered)
                 .accessibilityIdentifier("root.addCard")
 
-                TextField("Search cards", text: $searchCards)
-                    .textFieldStyle(.roundedBorder)
-                    .accessibilityIdentifier("cardEditor.merchantSearch")
-                    .padding(.horizontal)
+                VStack(spacing: 12) {
+                    TextField("Search cards", text: $searchCards)
+                        .textFieldStyle(.roundedBorder)
+                        .accessibilityIdentifier("cardEditor.merchantSearch")
 
-                TextField("Card aliases", text: $aliases)
-                    .textFieldStyle(.roundedBorder)
-                    .accessibilityIdentifier("cardEditor.aliases")
-                    .padding(.horizontal)
+                    TextField("Card aliases", text: $aliases)
+                        .textFieldStyle(.roundedBorder)
+                        .accessibilityIdentifier("cardEditor.aliases")
 
-                Button("Save") {
-                    savedAliases = aliases
+                    Button("Save") {
+                        savedAliases = aliases
+                    }
+                    .accessibilityIdentifier("cardEditor.save")
+
+                    Text("Saved: \(savedAliases)")
+                        .accessibilityIdentifier("cardEditor.savedValue")
                 }
-                .accessibilityIdentifier("cardEditor.save")
+                .padding(.horizontal)
+                .accessibilityIdentifier("cardEditor.detailPanel")
 
-                Text("Saved: \(savedAliases)")
-                    .accessibilityIdentifier("cardEditor.savedValue")
-
-                if showPhaseTwoNegativeTarget {
+                if showNegativeTarget {
                     Text("Fallback negative marker")
                         .accessibilityIdentifier("phase2.negativeTarget")
                 }
@@ -95,6 +97,6 @@ struct ContentView: View {
         searchCards = ""
         savedAliases = ""
         showAlert = false
-        showPhaseTwoNegativeTarget = false
+        showNegativeTarget = false
     }
 }

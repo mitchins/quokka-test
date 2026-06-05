@@ -70,6 +70,91 @@ enum UITestWaiter {
 }
 
 @MainActor
+public enum UITestSync {
+    public static func until(
+        timeout: TimeInterval,
+        pollInterval: TimeInterval = 0.05,
+        condition: @escaping () -> Bool
+    ) -> Bool {
+        UITestWaiter.until(
+            timeout: timeout,
+            pollInterval: pollInterval,
+            condition: condition
+        )
+    }
+
+    public static func untilAllExist(
+        _ elements: [any UITestActionSurface],
+        timeout: TimeInterval,
+        pollInterval: TimeInterval = 0.05
+    ) -> Bool {
+        until(timeout: timeout, pollInterval: pollInterval) {
+            elements.allSatisfy(\.raw.exists)
+        }
+    }
+
+    public static func untilAllNotExist(
+        _ elements: [any UITestActionSurface],
+        timeout: TimeInterval,
+        pollInterval: TimeInterval = 0.05
+    ) -> Bool {
+        until(timeout: timeout, pollInterval: pollInterval) {
+            elements.allSatisfy { !$0.raw.exists }
+        }
+    }
+}
+
+@MainActor
+public struct UITestMatchQuery {
+    public let raw: XCUIElementQuery
+    public let locator: UITestLocatorContext
+    public let surface: String
+    public let timeouts: UITestTimeouts
+    public let application: XCUIApplication
+    public let diagnosticsConfiguration: UITestDiagnosticsConfiguration
+
+    public var count: Int {
+        raw.count
+    }
+
+    @discardableResult
+    public func assertCount(
+        _ expectedCount: Int,
+        timeout: TimeInterval? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> Self {
+        UITestAction.assertCount(
+            self,
+            expectedCount,
+            timeout: timeout,
+            file: file,
+            line: line
+        )
+        return self
+    }
+
+    func fail(
+        action: String,
+        details: String,
+        timeout: TimeInterval,
+        file: StaticString,
+        line: UInt
+    ) {
+        UITestFailureReporter.report(
+            action: action,
+            details: details,
+            locator: "\(surface): \(locator.description)",
+            application: application,
+            diagnostics: diagnosticsConfiguration,
+            timeout: timeout,
+            file: file,
+            line: line
+        )
+    }
+}
+
+@MainActor
 enum UITestAction {
     static func assertExists(
         _ element: UITestActionSurface,
@@ -162,6 +247,60 @@ enum UITestAction {
         element.fail(
             action: "assertNotExists",
             details: "Expected element to not exist",
+            timeout: waitTimeout,
+            file: file,
+            line: line
+        )
+    }
+
+    static func waitUntilExists(
+        _ element: UITestActionSurface,
+        timeouts: UITestTimeouts,
+        timeout: TimeInterval?,
+        file: StaticString,
+        line: UInt
+    ) {
+        let waitTimeout = timeout ?? timeouts.normal
+        if element.raw.waitForExistence(timeout: waitTimeout) {
+            return
+        }
+
+        element.fail(
+            action: "waitUntilExists",
+            details: failureDetails(
+                "Expected element to exist before timeout expired",
+                locator: element.locator
+            ),
+            timeout: waitTimeout,
+            file: file,
+            line: line
+        )
+    }
+
+    static func waitUntilNotExists(
+        _ element: UITestActionSurface,
+        timeouts: UITestTimeouts,
+        timeout: TimeInterval?,
+        file: StaticString,
+        line: UInt
+    ) {
+        let waitTimeout = timeout ?? timeouts.short
+        if !element.raw.exists {
+            return
+        }
+
+        if UITestWaiter.until(timeout: waitTimeout, condition: {
+            !element.raw.exists
+        }) {
+            return
+        }
+
+        element.fail(
+            action: "waitUntilNotExists",
+            details: failureDetails(
+                "Expected element to stop existing before timeout expired",
+                locator: element.locator
+            ),
             timeout: waitTimeout,
             file: file,
             line: line
@@ -333,6 +472,32 @@ enum UITestAction {
         )
     }
 
+    static func assertCount(
+        _ query: UITestMatchQuery,
+        _ expectedCount: Int,
+        timeout: TimeInterval?,
+        file: StaticString,
+        line: UInt
+    ) {
+        let waitTimeout = timeout ?? query.timeouts.short
+        var matchCount = query.raw.count
+
+        if UITestWaiter.until(timeout: waitTimeout, condition: {
+            matchCount = query.raw.count
+            return matchCount == expectedCount
+        }) {
+            return
+        }
+
+        query.fail(
+            action: "assertCount",
+            details: "Expected \(expectedCount) matches, got \(matchCount)",
+            timeout: waitTimeout,
+            file: file,
+            line: line
+        )
+    }
+
     private static func countPredicate(
         for element: XCUIElement,
         locator: UITestLocatorContext
@@ -454,6 +619,104 @@ enum UITestAction {
         )
     }
 
+    static func assertVisible<Container: UITestActionSurface>(
+        _ element: UITestActionSurface,
+        in container: Container,
+        timeouts: UITestTimeouts,
+        file: StaticString,
+        line: UInt
+    ) {
+        let waitTimeout = timeouts.normal
+
+        guard element.raw.waitForExistence(timeout: waitTimeout) else {
+            element.fail(
+                action: "assertVisible(in:)",
+                details: visibilityFailureDetails(
+                    "Expected element to exist before checking container-relative visibility",
+                    element: element,
+                    container: container,
+                    elementFrame: element.raw.frame,
+                    containerFrame: container.raw.frame
+                ),
+                timeout: waitTimeout,
+                file: file,
+                line: line
+            )
+            return
+        }
+
+        guard container.raw.waitForExistence(timeout: waitTimeout) else {
+            element.fail(
+                action: "assertVisible(in:)",
+                details: visibilityFailureDetails(
+                    "Expected container to exist before checking container-relative visibility",
+                    element: element,
+                    container: container,
+                    elementFrame: element.raw.frame,
+                    containerFrame: container.raw.frame
+                ),
+                timeout: waitTimeout,
+                file: file,
+                line: line
+            )
+            return
+        }
+
+        let elementFrame = element.raw.frame
+        let containerFrame = container.raw.frame
+
+        guard !elementFrame.isEmpty else {
+            element.fail(
+                action: "assertVisible(in:)",
+                details: visibilityFailureDetails(
+                    "Expected element frame to be non-empty",
+                    element: element,
+                    container: container,
+                    elementFrame: elementFrame,
+                    containerFrame: containerFrame
+                ),
+                timeout: waitTimeout,
+                file: file,
+                line: line
+            )
+            return
+        }
+
+        guard !containerFrame.isEmpty else {
+            element.fail(
+                action: "assertVisible(in:)",
+                details: visibilityFailureDetails(
+                    "Expected container frame to be non-empty",
+                    element: element,
+                    container: container,
+                    elementFrame: elementFrame,
+                    containerFrame: containerFrame
+                ),
+                timeout: waitTimeout,
+                file: file,
+                line: line
+            )
+            return
+        }
+
+        guard containerFrame.intersects(elementFrame) else {
+            element.fail(
+                action: "assertVisible(in:)",
+                details: visibilityFailureDetails(
+                    "Expected element frame to intersect container frame",
+                    element: element,
+                    container: container,
+                    elementFrame: elementFrame,
+                    containerFrame: containerFrame
+                ),
+                timeout: waitTimeout,
+                file: file,
+                line: line
+            )
+            return
+        }
+    }
+
     static func assertUnchecked(
         _ element: UITestActionSurface,
         timeouts: UITestTimeouts,
@@ -519,6 +782,26 @@ enum UITestAction {
         }
         return "\(base). Attempted locator chain: \(chain.description)"
     }
+
+    private static func visibilityFailureDetails(
+        _ base: String,
+        element: UITestActionSurface,
+        container: some UITestActionSurface,
+        elementFrame: CGRect,
+        containerFrame: CGRect
+    ) -> String {
+        "\(base). Element locator: \(element.locator.description). " +
+        "Container locator: \(container.locator.description). " +
+        "elementFrame=\(frameDescription(elementFrame)). " +
+        "containerFrame=\(frameDescription(containerFrame))"
+    }
+
+    private static func frameDescription(_ frame: CGRect) -> String {
+        "{x: \(String(format: "%.2f", frame.origin.x)), " +
+        "y: \(String(format: "%.2f", frame.origin.y)), " +
+        "width: \(String(format: "%.2f", frame.size.width)), " +
+        "height: \(String(format: "%.2f", frame.size.height))}"
+    }
 }
 
 private extension XCUIElement {
@@ -577,6 +860,38 @@ extension UITestActionSurface {
         line: UInt = #line
     ) -> Self {
         UITestAction.assertNotExists(
+            self,
+            timeouts: timeouts,
+            timeout: timeout,
+            file: file,
+            line: line
+        )
+        return self
+    }
+
+    @discardableResult
+    public func waitUntilExists(
+        timeout: TimeInterval? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> Self {
+        UITestAction.waitUntilExists(
+            self,
+            timeouts: timeouts,
+            timeout: timeout,
+            file: file,
+            line: line
+        )
+        return self
+    }
+
+    @discardableResult
+    public func waitUntilNotExists(
+        timeout: TimeInterval? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> Self {
+        UITestAction.waitUntilNotExists(
             self,
             timeouts: timeouts,
             timeout: timeout,
@@ -748,6 +1063,22 @@ extension UITestActionSurface {
             self,
             timeouts: timeouts,
             timeout: timeout,
+            file: file,
+            line: line
+        )
+        return self
+    }
+
+    @discardableResult
+    public func assertVisible(
+        in container: some UITestActionSurface,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> Self {
+        UITestAction.assertVisible(
+            self,
+            in: container,
+            timeouts: timeouts,
             file: file,
             line: line
         )
