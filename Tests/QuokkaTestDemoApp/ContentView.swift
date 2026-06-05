@@ -1,4 +1,7 @@
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 
 struct ContentView: View {
     @State private var aliases = ""
@@ -43,13 +46,25 @@ struct ContentView: View {
                 .accessibilityIdentifier("root.addCard")
 
                 VStack(spacing: 12) {
+                    #if os(iOS)
+                    IdentifiedSearchField(
+                        placeholder: "Search cards",
+                        text: $searchCards,
+                        identifier: "cardEditor.merchantSearch"
+                    )
+
+                    IdentifiedTextField(
+                        placeholder: "Card aliases",
+                        text: $aliases,
+                        identifier: "cardEditor.aliases"
+                    )
+                    #else
                     TextField("Search cards", text: $searchCards)
-                        .textFieldStyle(.roundedBorder)
                         .accessibilityIdentifier("cardEditor.merchantSearch")
 
                     TextField("Card aliases", text: $aliases)
-                        .textFieldStyle(.roundedBorder)
                         .accessibilityIdentifier("cardEditor.aliases")
+                    #endif
 
                     Button("Save") {
                         savedAliases = aliases
@@ -60,7 +75,12 @@ struct ContentView: View {
                         .accessibilityIdentifier("cardEditor.savedValue")
                 }
                 .padding(.horizontal)
-                .accessibilityIdentifier("cardEditor.detailPanel")
+                .background {
+                    Color.black
+                        .opacity(0.001)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityIdentifier("cardEditor.detailPanel")
+                }
 
                 if showNegativeTarget {
                     Text("Fallback negative marker")
@@ -100,3 +120,96 @@ struct ContentView: View {
         showNegativeTarget = false
     }
 }
+
+#if os(iOS)
+private struct IdentifiedSearchField: UIViewRepresentable {
+    let placeholder: String
+    @Binding var text: String
+    let identifier: String
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(text: $text)
+    }
+
+    func makeUIView(context: Context) -> UISearchTextField {
+        let textField = UISearchTextField(frame: .zero)
+        textField.placeholder = placeholder
+        textField.accessibilityIdentifier = identifier
+        textField.accessibilityLabel = placeholder
+        textField.addTarget(
+            context.coordinator,
+            action: #selector(Coordinator.editingChanged(_:)),
+            for: .editingChanged
+        )
+        return textField
+    }
+
+    func updateUIView(_ uiView: UISearchTextField, context: Context) {
+        if uiView.text != text {
+            uiView.text = text
+        }
+        uiView.placeholder = placeholder
+        uiView.accessibilityIdentifier = identifier
+        uiView.accessibilityLabel = placeholder
+    }
+
+    @MainActor
+    final class Coordinator: NSObject {
+        private var text: Binding<String>
+
+        init(text: Binding<String>) {
+            self.text = text
+        }
+
+        @objc
+        func editingChanged(_ sender: UISearchTextField) {
+            text.wrappedValue = sender.text ?? ""
+        }
+    }
+}
+
+private struct IdentifiedTextField: UIViewRepresentable {
+    let placeholder: String
+    @Binding var text: String
+    let identifier: String
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(text: $text)
+    }
+
+    func makeUIView(context: Context) -> UITextField {
+        let textField = UITextField(frame: .zero)
+        textField.borderStyle = .roundedRect
+        textField.placeholder = placeholder
+        textField.accessibilityIdentifier = identifier
+        textField.addTarget(
+            context.coordinator,
+            action: #selector(Coordinator.editingChanged(_:)),
+            for: .editingChanged
+        )
+        return textField
+    }
+
+    func updateUIView(_ uiView: UITextField, context: Context) {
+        if uiView.text != text {
+            uiView.text = text
+        }
+        uiView.placeholder = placeholder
+        uiView.accessibilityIdentifier = identifier
+    }
+
+    @MainActor
+    final class Coordinator: NSObject {
+        private var text: Binding<String>
+
+        init(text: Binding<String>) {
+            self.text = text
+        }
+
+        @objc
+        func editingChanged(_ sender: UITextField) {
+            text.wrappedValue = sender.text ?? ""
+        }
+    }
+}
+#endif

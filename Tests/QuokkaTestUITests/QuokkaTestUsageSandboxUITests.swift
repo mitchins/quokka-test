@@ -18,6 +18,16 @@ private enum SettingsLocator: String, UITestIdentifiable {
     case scroll = "settings.scroll"
 }
 
+private let merchantSearchLocator = UITestLocatorChain(
+    .id(CardEditorLocator.merchantSearch.rawValue),
+    .placeholder("Search cards")
+)
+
+private let aliasesFieldLocator = UITestLocatorChain(
+    .id(CardEditorLocator.aliases.rawValue),
+    .placeholder("Card aliases")
+)
+
 final class QuokkaTestUsageSandboxUITests: XCTestCase {
     @MainActor
     private func makeApp() -> UITestApp {
@@ -42,10 +52,10 @@ final class QuokkaTestUsageSandboxUITests: XCTestCase {
 
         app.button(RootLocator.addCard)
             .tapWhenReady()
-        app.searchField(CardEditorLocator.merchantSearch)
+        app.searchField(merchantSearchLocator)
             .assertExists()
             .clearAndEnter("Coles")
-        app.field(CardEditorLocator.aliases)
+        app.field(aliasesFieldLocator)
             .clearAndEnter(alias)
         app.button(CardEditorLocator.save)
             .tapWhenReady()
@@ -91,14 +101,14 @@ final class QuokkaTestUsageSandboxUITests: XCTestCase {
             .requiring(.notExists(.id("phase2.negativeTarget")))
             .waitUntilReady()
         app.page(.heading("No cards yet"))
-            .requiring(.valueEquals(.id("cardEditor.aliases"), ""))
+            .requiring(.valueEquals(.placeholder("Card aliases"), ""))
             .waitUntilReady()
 
         app.staticText(UITestLocator.id("cards.pageTitle"))
             .assertExists()
         app.page(.navigationTitle("Cards"))
             .waitUntilReady(timeout: app.timeouts.short)
-        app.searchField(UITestLocator.id("cardEditor.merchantSearch"))
+        app.searchField(merchantSearchLocator)
             .assertExists(timeout: app.timeouts.short)
         app.searchField(UITestLocator.placeholder("Search cards"))
             .assertExists(timeout: app.timeouts.short)
