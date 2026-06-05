@@ -1,8 +1,6 @@
 import XCTest
 import QuokkaTestMac
 
-private let demoMacAppBundleIdentifier = "com.mitchins.QuokkaTestDemoMacApp"
-
 private enum MacCardEditorLocator: String, UITestIdentifiable {
     case aliases = "cardEditor.aliases"
     case save = "cardEditor.save"
@@ -15,7 +13,7 @@ private enum MacRootLocator: String, UITestIdentifiable {
 final class QuokkaTestMacUsageSandboxUITests: XCTestCase {
     @MainActor
     private func makeApp() -> UITestApp {
-        UITestApp(XCUIApplication(bundleIdentifier: demoMacAppBundleIdentifier))
+        UITestApp(XCUIApplication())
     }
 
     @MainActor
