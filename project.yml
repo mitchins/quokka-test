@@ -1,0 +1,99 @@
+name: QuokkaTest
+options:
+  bundleIdPrefix: com.mitchins
+  deploymentTarget:
+    iOS: "15.0"
+  generateEmptyDirectories: true
+
+packages: {}
+
+settings:
+  base:
+    SWIFT_VERSION: 6.0
+    GENERATE_INFOPLIST_FILE: YES
+    OTHER_SWIFT_FLAGS:
+      - $(inherited)
+      - -warnings-as-errors
+    SWIFT_TREAT_WARNINGS_AS_ERRORS: YES
+    GCC_TREAT_WARNINGS_AS_ERRORS: YES
+  configs:
+    Debug:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+
+targets:
+  QuokkaTest:
+    type: framework
+    platform: iOS
+    sources: [Sources/QuokkaTest]
+    dependencies:
+      - sdk: XCTest.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mitchins.QuokkaTest
+        OTHER_SWIFT_FLAGS:
+          - $(inherited)
+          - -warnings-as-errors
+
+  QuokkaTestDemoApp:
+    type: application
+    platform: iOS
+    sources: [Tests/QuokkaTestDemoApp]
+    resources:
+      - path: Tests/QuokkaTestDemoApp/LaunchScreen.storyboard
+    info:
+      path: Tests/QuokkaTestDemoApp/Info.plist
+      properties:
+        UILaunchStoryboardName: LaunchScreen
+        UIRequiresFullScreen: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mitchins.QuokkaTestDemoApp
+        OTHER_SWIFT_FLAGS:
+          - $(inherited)
+          - -warnings-as-errors
+
+  QuokkaTestTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [Tests/QuokkaTestTests]
+    dependencies:
+      - target: QuokkaTest
+    settings:
+      base:
+        OTHER_SWIFT_FLAGS:
+          - $(inherited)
+          - -warnings-as-errors
+
+  QuokkaTestUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [Tests/QuokkaTestUITests]
+    dependencies:
+      - target: QuokkaTest
+      - target: QuokkaTestDemoApp
+    settings:
+      base:
+        OTHER_SWIFT_FLAGS:
+          - $(inherited)
+          - -warnings-as-errors
+
+schemes:
+  QuokkaTest:
+    shared: true
+    build:
+      targets:
+        QuokkaTest: all
+    test:
+      gatherCoverageData: true
+      targets:
+        - QuokkaTestTests
+
+  QuokkaDemoTest:
+    shared: true
+    build:
+      targets:
+        QuokkaTestDemoApp: all
+    test:
+      gatherCoverageData: true
+      targets:
+        - QuokkaTestUITests

@@ -1,0 +1,192 @@
+name: QuokkaTest CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-and-analyze:
+    name: Validate and Analyze
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0
+        with:
+          fetch-depth: 0
+
+      - name: Install XcodeGen
+        run: |
+          if ! command -v xcodegen >/dev/null 2>&1; then
+            brew install xcodegen
+          fi
+
+      - name: Generate Xcode project
+        run: |
+          xcodegen generate
+
+      - name: Validate Swift Package
+        run: swift test -Xswiftc -warnings-as-errors
+
+      - name: Resolve iOS Simulator destination
+        id: resolve-simulator
+        run: |
+          set -euo pipefail
+
+          resolve_simulator_id() {
+            printf "%s\n" "$1" |
+              awk '/platform:iOS Simulator/ && $0 !~ /Any iOS Simulator Device/ {
+                if (match($0, /id:[^, ]*/)) {
+                  print substr($0, RSTART + 3, RLENGTH - 3)
+                  exit
+                }
+              }'
+          }
+
+          resolve_iPhone_simulator_id() {
+            printf "%s\n" "$1" |
+              awk '/platform:iOS Simulator/ && /name:iPhone/ && $0 !~ /name:Any iOS Simulator Device/ {
+                if (match($0, /id:[^, ]*/)) {
+                  print substr($0, RSTART + 3, RLENGTH - 3)
+                  exit
+                }
+              }'
+          }
+
+          resolve_simctl_iPhone_simulator_id() {
+            printf "%s\n" "$1" |
+              awk '/iPhone.*Pro/ {
+                if (match($0, /[0-9A-Fa-f-]{36}/)) {
+                  print substr($0, RSTART, RLENGTH)
+                  exit
+                }
+              }'
+          }
+
+          resolve_simctl_simulator_id() {
+            printf "%s\n" "$1" |
+              awk '/^[[:space:]]*iPhone/ || /^[[:space:]]*iPad/ {
+                if (match($0, /[0-9A-Fa-f-]{36}/)) {
+                  print substr($0, RSTART, RLENGTH)
+                  exit
+                }
+              }'
+          }
+
+          AVAILABLE_DESTINATIONS="$(xcodebuild -project QuokkaTest.xcodeproj -scheme QuokkaTest -showdestinations 2>&1)"
+
+          SIMULATOR_ID="$(resolve_iPhone_simulator_id "$AVAILABLE_DESTINATIONS")"
+          if [ -z "$SIMULATOR_ID" ]; then
+            SIMULATOR_ID="$(resolve_simulator_id "$AVAILABLE_DESTINATIONS")"
+          fi
+
+          if [ -z "$SIMULATOR_ID" ]; then
+            echo "No concrete iOS simulator destination from xcodebuild scheme. Falling back to existing simctl devices."
+
+            SIMCTL_DEVICES="$(xcrun simctl list devices available)"
+
+            SIMULATOR_ID="$(resolve_simctl_iPhone_simulator_id "$SIMCTL_DEVICES")"
+            if [ -z "$SIMULATOR_ID" ]; then
+              SIMULATOR_ID="$(resolve_simctl_simulator_id "$SIMCTL_DEVICES")"
+            fi
+
+            if [ -z "$SIMULATOR_ID" ]; then
+              echo "No installed iOS simulators are currently available."
+              echo "xcodebuild destinations:"
+              echo "$AVAILABLE_DESTINATIONS"
+              echo "simctl devices:"
+              echo "$SIMCTL_DEVICES"
+              exit 1
+            fi
+          fi
+
+          if [ -z "$SIMULATOR_ID" ]; then
+            echo "No concrete iOS simulator destination was found."
+            echo "$AVAILABLE_DESTINATIONS"
+            exit 1
+          fi
+
+          echo "destination=platform=iOS Simulator,id=${SIMULATOR_ID}" >> "$GITHUB_OUTPUT"
+          echo "Resolved iOS simulator destination: platform=iOS Simulator,id=${SIMULATOR_ID}"
+
+      - name: Run Xcode Unit Coverage
+        run: |
+          set -euo pipefail
+          DESTINATION="${{ steps.resolve-simulator.outputs.destination }}"
+          mkdir -p ./.build/coverage/raw ./.build/derivedData
+          xcodebuild \
+            -project QuokkaTest.xcodeproj \
+            -scheme QuokkaTest \
+            -destination "${DESTINATION}" \
+            -derivedDataPath ./.build/derivedData \
+            -resultBundlePath ./.build/coverage/raw/QuokkaTest.unit.xcresult \
+            -enableCodeCoverage YES \
+            test \
+            CODE_SIGNING_ALLOWED=NO \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
+            GCC_TREAT_WARNINGS_AS_ERRORS=YES \
+            OTHER_SWIFT_FLAGS='-warnings-as-errors'
+
+      - name: Run Xcode UI Coverage
+        run: |
+          set -euo pipefail
+          DESTINATION="${{ steps.resolve-simulator.outputs.destination }}"
+          xcodebuild \
+            -project QuokkaTest.xcodeproj \
+            -scheme QuokkaDemoTest \
+            -destination "${DESTINATION}" \
+            -derivedDataPath ./.build/derivedData \
+            -resultBundlePath ./.build/coverage/raw/QuokkaTest.ui.xcresult \
+            -enableCodeCoverage YES \
+            test \
+            CODE_SIGNING_ALLOWED=NO \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
+            GCC_TREAT_WARNINGS_AS_ERRORS=YES \
+            OTHER_SWIFT_FLAGS='-warnings-as-errors'
+
+      - name: Verify Coverage Bundle Outputs
+        if: always()
+        run: |
+          set -euo pipefail
+          test -d ./.build/coverage/raw/QuokkaTest.unit.xcresult || {
+            echo "Unit coverage result bundle missing: ./.build/coverage/raw/QuokkaTest.unit.xcresult"
+            find ./.build/coverage/raw -maxdepth 2 -type d -name '*.xcresult' -print || true
+            exit 1
+          }
+          test -d ./.build/coverage/raw/QuokkaTest.ui.xcresult || {
+            echo "UI coverage result bundle missing: ./.build/coverage/raw/QuokkaTest.ui.xcresult"
+            find ./.build/coverage/raw -maxdepth 2 -type d -name '*.xcresult' -print || true
+            exit 1
+          }
+
+          ls -la ./.build/coverage/raw
+
+      - name: Convert Coverage to Cobertura XML
+        if: success()
+        run: |
+          set -euo pipefail
+          mkdir -p ./.build/coverage/raw ./coverage
+          python3 .github/scripts/convert-xcresult-to-cobertura.py \
+            ./.build/coverage/raw/QuokkaTest.unit.xcresult \
+            ./coverage/unit-coverage.xml
+          python3 .github/scripts/convert-xcresult-to-cobertura.py \
+            ./.build/coverage/raw/QuokkaTest.ui.xcresult \
+            ./coverage/ui-coverage.xml
+
+      - name: Upload Coverage Artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: quokka-test-coverage
+          path: |
+            ./.build/coverage/raw/*.xcresult
+            ./coverage/*.xml
+          if-no-files-found: error
+
+      - name: SonarCloud analysis
+        if: success()
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
