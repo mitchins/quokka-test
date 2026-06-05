@@ -30,10 +30,52 @@ jobs:
       - name: Validate Swift Package
         run: swift test -Xswiftc -warnings-as-errors
 
+      - name: Resolve iOS Simulator destination
+        id: resolve-simulator
+        run: |
+          set -euo pipefail
+
+          AVAILABLE_DESTINATIONS="$(xcodebuild -project QuokkaTest.xcodeproj -scheme QuokkaTest -showdestinations 2>&1)"
+
+          SIMULATOR_ID="$(
+            printf "%s\n" "$AVAILABLE_DESTINATIONS" |
+            awk '
+              /platform:iOS Simulator/ && /name:iPhone/ && $0 !~ /name:Any iOS Simulator Device/ {
+                if (match($0, /id:[^, ]*/)) {
+                  print substr($0, RSTART + 3, RLENGTH - 3)
+                  exit
+                }
+              }
+            '
+          )"
+
+          if [ -z "$SIMULATOR_ID" ]; then
+            SIMULATOR_ID="$(
+              printf "%s\n" "$AVAILABLE_DESTINATIONS" |
+              awk '
+                /platform:iOS Simulator/ && $0 !~ /Any iOS Simulator Device/ {
+                  if (match($0, /id:[^, ]*/)) {
+                    print substr($0, RSTART + 3, RLENGTH - 3)
+                    exit
+                  }
+                }
+              '
+            )"
+          fi
+
+          if [ -z "$SIMULATOR_ID" ]; then
+            echo "No concrete iOS simulator destination was found."
+            echo "$AVAILABLE_DESTINATIONS"
+            exit 1
+          fi
+
+          echo "destination=platform=iOS Simulator,id=${SIMULATOR_ID}" >> "$GITHUB_OUTPUT"
+          echo "Resolved iOS simulator destination: platform=iOS Simulator,id=${SIMULATOR_ID}"
+
       - name: Run Xcode Unit Coverage
         run: |
           set -euo pipefail
-          DESTINATION="platform=iOS Simulator,name=Any iOS Simulator Device"
+          DESTINATION="${{ steps.resolve-simulator.outputs.destination }}"
           mkdir -p ./.build/coverage/raw ./.build/derivedData
           xcodebuild \
             -project QuokkaTest.xcodeproj \
@@ -51,7 +93,7 @@ jobs:
       - name: Run Xcode UI Coverage
         run: |
           set -euo pipefail
-          DESTINATION="platform=iOS Simulator,name=Any iOS Simulator Device"
+          DESTINATION="${{ steps.resolve-simulator.outputs.destination }}"
           xcodebuild \
             -project QuokkaTest.xcodeproj \
             -scheme QuokkaDemoTest \
