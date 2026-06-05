@@ -57,12 +57,22 @@ jobs:
 
           resolve_simctl_iPhone_simulator_id() {
             printf "%s\n" "$1" |
-              awk '/iPhone.*Pro/ { match($0, /[0-9A-Fa-f-]{36}/, id); if (id[0] != "") { print id[0]; exit } }'
+              awk '/iPhone.*Pro/ {
+                if (match($0, /[0-9A-Fa-f-]{36}/)) {
+                  print substr($0, RSTART, RLENGTH)
+                  exit
+                }
+              }'
           }
 
           resolve_simctl_simulator_id() {
             printf "%s\n" "$1" |
-              awk '/^[[:space:]]*iPhone/ || /^[[:space:]]*iPad/ { match($0, /[0-9A-Fa-f-]{36}/, id); if (id[0] != "") { print id[0]; exit } }'
+              awk '/^[[:space:]]*iPhone/ || /^[[:space:]]*iPad/ {
+                if (match($0, /[0-9A-Fa-f-]{36}/)) {
+                  print substr($0, RSTART, RLENGTH)
+                  exit
+                }
+              }'
           }
 
           AVAILABLE_DESTINATIONS="$(xcodebuild -project QuokkaTest.xcodeproj -scheme QuokkaTest -showdestinations 2>&1)"
