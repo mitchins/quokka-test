@@ -25,9 +25,9 @@ QuokkaTest stays app-agnostic and thin:
 - extended assertion set (`assertEnabled`, `assertDisabled`, `assertValueEquals`,
   `assertLabelEquals`, `assertLabelContains`, `assertMatchCount(_)`, selected/checked state)
 
-## Phase 2 usage patterns
+## Usage
 
-### 1) Happy path typed locator usage
+### Typed locators
 
 ```swift
 enum CardEditorLocator: String, UITestIdentifiable {
@@ -57,16 +57,16 @@ func testCanEnterAlias() {
 }
 ```
 
-### 2) Explicit fallback locator usage
+### Explicit fallbacks
 
-Fallback should be explicit and used as a compatibility bridge only.
+Use fallbacks only when a surface is genuinely unstable across UI implementations or accessibility wiring.
 
 ```swift
 app.button(UITestLocatorChain(.id("missing.id"), .label("Save"), .value("Save")))
     .tapWhenReady()
 ```
 
-### 3) App-owned launch preset
+### Launch preset
 
 ```swift
 let launch = UITestLaunchConfiguration(
@@ -87,7 +87,7 @@ let app = UITestApp().launch(
 )
 ```
 
-### 4) Page readiness
+### Page readiness
 
 `searchField(...)` is intentionally compatible with SwiftUI/XCUI differences: it queries `searchFields` first and falls back to `textFields` when needed.
 
@@ -103,7 +103,7 @@ app.page(.locator(.id("cards.root")))
     .assertReady()
 ```
 
-### 5) Robot pattern in app tests (not inside QuokkaTest)
+### Robot pattern
 
 ```swift
 enum CardEditorLocator: String, UITestIdentifiable {
@@ -128,14 +128,14 @@ struct CardEditorRobot {
 }
 ```
 
-### 6) Negative assertions
+### Negative assertions
 
 ```swift
 app.alert(UITestLocator.label("Error")).assertNotExists()
 app.staticText(UITestLocator.label("Based on nearby match")).assertNotExists(timeout: app.timeouts.short)
 ```
 
-### 7) Scroll helper
+### Scroll helper
 
 ```swift
 let debugButton = app.button(UITestLocator.id("settings.debugPOICapture"))
@@ -143,7 +143,7 @@ app.scrollView(UITestLocator.id("settings.scroll"))
     .swipeUpUntilExists(debugButton, maxAttempts: 12)
 ```
 
-### 8) Menu helpers (macOS)
+### Menu helpers (macOS)
 
 ```swift
 #if os(macOS)
@@ -155,7 +155,7 @@ app.assertMenuItemsEqual(in: UITestLocator.label("File"), ["About", "Print", "Qu
 
 `menu` and `menuItem` APIs are available only on macOS where XCUITest menu traversal is supported.
 
-### 9) Diagnostics on failures
+### Diagnostics
 
 ```swift
 let app = UITestApp(diagnostics: .init(
@@ -164,16 +164,9 @@ let app = UITestApp(diagnostics: .init(
 ))
 ```
 
-Diagnostics are attached automatically when wrapped assertions/actions fail and include:
+On failure, diagnostics can attach the action, locator, timeout, screenshot, and hierarchy.
 
-- action attempted
-- identifier/locator used
-- timeout used
-- optional screenshot + hierarchy attachment
-
-### 10) Minimum assertion set (recommended baseline)
-
-For stable tests across suites, prefer this compact set as your default checks:
+### Default assertion set
 
 - `assertExists()` for required UI surfaces.
 - `assertNotExists()` for optional/dismissed UI paths.
@@ -184,7 +177,7 @@ For stable tests across suites, prefer this compact set as your default checks:
 - `assertMatchCount(_:)` for collection-like checks.
 - `assertChecked()` / `assertUnchecked()` for selectable or toggle-like controls.
 
-## Proof sandbox + CI paths
+## Validation
 
 ### 1) Package smoke checks
 
